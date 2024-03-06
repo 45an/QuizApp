@@ -13,5 +13,10 @@ namespace QuizApp.Server.Data
             IOptions<OperationalStoreOptions> operationalStoreOptions) : base(options, operationalStoreOptions)
         {
         }
+        public DbSet<Quiz>? Quizzes { get; set; }
+        public DbSet<Game>? Games { get; set; }
+        public DbSet<Question>? Questions { get; set; }
+        public DbSet<Media>? Media { get; set; }
+        public DbSet<ApplicationUser> ApplicationUserModel { get; set; }
     }
 }
