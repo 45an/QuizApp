@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 
 namespace QuizApp.Server.Models
 {
@@ -8,11 +9,14 @@ namespace QuizApp.Server.Models
         [Key]
         public int Id { get; set; }
         [Required]
+        public string? Name { get; set; }
+        [Required]
         public string? Title { get; set; }
         [Required]
-        public int MaxScore { get; set; }
-        [Required]
-        public int HighScore { get; set; }  
+        public int HighScore { get; set; }
+
+        [AllowNull]
+        public int GamesPlayed { get; set; }
 
         [ForeignKey("User")]
         public string? UserId { get; set; }
