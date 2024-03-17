@@ -14,10 +14,10 @@ namespace QuizApp.Server.Models
         public string? Title { get; set; }
         [Required]
         public int HighScore { get; set; }
-
+        [Required]
+        public int MaxScore { get; set; }
         [AllowNull]
         public int GamesPlayed { get; set; }
-
         [ForeignKey("User")]
         public string? UserId { get; set; }
         public virtual ApplicationUser? User { get; set; }

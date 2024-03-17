@@ -9,6 +9,6 @@
         public string? Media { get; set; }
         public int Time { get; set; }
         public bool MultipleChoice { get; set; }
-        public bool TimeLimit { get; set; } 
+        public List<MockView>? MocksAnswer { get; set; } = new List<MockView>();
     }
 }

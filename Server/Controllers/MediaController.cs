@@ -47,7 +47,7 @@ namespace QuizApp.Server.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"An error occurred while retrieving media: {ex.Message}");
+                return StatusCode(500, $"An error occurred while retrieving media: {ex.Message}"); // Returnera en 500 HTTP-statuskod om ett fel inträffade
             }
         }
 
@@ -56,14 +56,14 @@ namespace QuizApp.Server.Controllers
         {
             // Kontrollera om filen är giltig och uppfyller kraven
             if (file == null || file.Length == 0)
-                return BadRequest("No file uploaded.");
+                return BadRequest("No file uploaded."); // Returnera en BadRequest HTTP-statuskod om ingen fil har laddats upp  
 
             int maxMb = 13;
             long megaByte = 1024 * 1024;
             long maxAllowedSizeInBytes = maxMb * megaByte;
 
             if (file.Length > maxAllowedSizeInBytes)
-                return BadRequest("File size exceeds the allowable limit.");
+                return BadRequest("File size exceeds the allowable limit."); // Returnera en BadRequest HTTP-statuskod om filen är för stor
 
             string[] permittedFileTypes = { ".jpg", ".jpeg", ".png", ".gif", ".mp4" };
             var extension = Path.GetExtension(file.FileName)?.ToLowerInvariant();
@@ -83,13 +83,13 @@ namespace QuizApp.Server.Controllers
                 };
 
                 _context.Media.Add(newMedia);
-                await _context.SaveChangesAsync();
+                _context.SaveChanges();
 
                 return Ok(newMedia);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"An error occurred while uploading media: {ex.Message}");
+                return StatusCode(500, $"An error occurred while uploading media: {ex.Message}"); // Returnera en 500 HTTP-statuskod om ett fel inträffade  
             }
         }
     }

@@ -37,7 +37,7 @@ namespace QuizApp.Server.Controllers
             var quiz = _context.Quizzes
              .Include(q => q.User)
              .Where(x => x.Title == request.Title)
-             .FirstOrDefaultAsync();
+             .FirstOrDefault();
 
             if (quiz == null)
             {
@@ -53,7 +53,7 @@ namespace QuizApp.Server.Controllers
            
             _context.Games.Add(game);
 
-            //quiz.GamesPlayed += 1;
+            quiz.GamesPlayed += 1;
 
              _context.SaveChanges();
 
