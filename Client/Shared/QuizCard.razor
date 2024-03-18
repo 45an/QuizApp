@@ -1,0 +1,15 @@
+﻿<div class="card flex-row mb-4" style="width: 30rem;">
+    <img 
+        src="@quizSource" 
+        class="w-10" style="max-width:12rem;" />
+    <div class="card-body">
+        <h5 class="card-title">Quiz Title</h5>
+        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+        <a href="#" class="btn btn-primary">Take Quiz</a>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string? quizSource { get; set; }
+}

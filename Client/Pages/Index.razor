@@ -7,19 +7,27 @@
 
 Welcome to your new app.
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+<SurveyPrompt Title="question" />
 
+<div class="d-flex flex-lg-row flex-sm-wrap gap-4">
+    <QuizCard quizSource="/images/quiz_placeholder.png" />
+    <QuizCard quizSource="/images/quiz_placeholder.png" />
+    <QuizCard quizSource="/images/quiz_placeholder.png" />
+    <QuizCard quizSource="/images/quiz_placeholder.png" />
+    <QuizCard quizSource="/images/quiz_placeholder.png" />
+    <QuizCard quizSource="/images/quiz_placeholder.png" />
+</div>
 
-<VidazorVideo @ref="video"
+@* <VidazorVideo @ref="video"
               class="w-100" style="max-width:800px;"
               autoplay="true">
     <source src="/videos/phone.mp4"  />
-</VidazorVideo>
+</VidazorVideo> *@
 
-<button type="button" @onclick="() => video.Play()">Play</button>
-<button type="button" @onclick="() => video.Pause()">Pause</button>
+@*<button type="button" @onclick="() => video.Play()">Play</button>
+<button type="button" @onclick="() => video.Pause()">Pause</button> *@
 
 
 @code {
     VidazorVideo video;
-        }
+}
