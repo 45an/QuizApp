@@ -4,12 +4,20 @@
 
 <AuthorizeView>
     <Authorized>
-        <a href="authentication/profile">Hello, @context.User.Identity?.Name!</a>
-        <button class="nav-link btn btn-link" @onclick="BeginLogOut">Log out</button>
+        <NavLink class="nav-link" href="authentication/profile">
+            <span class="oi oi-home" aria-hidden="true"></span> @context.User.Identity?.Name
+        </NavLink>
+        <NavLink class="nav-link" @onclick="BeginLogOut" style="cursor:pointer">
+            <span class="oi oi-account-logout" aria-hidden="true"></span> Log out
+        </NavLink>
     </Authorized>
     <NotAuthorized>
-        <a href="authentication/register">Register</a>
-        <a href="authentication/login">Log in</a>
+        <NavLink class="nav-link" href="authentication/register">
+            <span class="oi oi-plus" aria-hidden="true"></span> Register
+        </NavLink>
+        <NavLink class="nav-link" href="authentication/login">
+            <span class="oi oi-account-login" aria-hidden="true"></span> Log in
+        </NavLink>
     </NotAuthorized>
 </AuthorizeView>
 
