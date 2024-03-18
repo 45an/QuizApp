@@ -45,7 +45,7 @@ namespace QuizApp.Server.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"An error occurred while retrieving user created games: {ex.Message}");
+                return StatusCode(500, $"An error occurred while retrieving user created games: {ex.Message}"); // Returnera en 500 HTTP-statuskod om ett fel inträffade    
             }
         }
 
