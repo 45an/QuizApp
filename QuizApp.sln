@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuizApp.Server", "Server\QuizApp.Server.csproj", "{405BDA6E-5257-46F5-89DD-CF659B9014E4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuizApp.Server", "Server\QuizApp.Server.csproj", "{405BDA6E-5257-46F5-89DD-CF659B9014E4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuizApp.Client", "Client\QuizApp.Client.csproj", "{6CAF0924-4A60-4959-9376-CB1FD063CF55}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuizApp.Client", "Client\QuizApp.Client.csproj", "{6CAF0924-4A60-4959-9376-CB1FD063CF55}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuizApp.Shared", "Shared\QuizApp.Shared.csproj", "{C0ABB6AE-7F42-4528-AEE2-D565E00D15E0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuizApp.Shared", "Shared\QuizApp.Shared.csproj", "{C0ABB6AE-7F42-4528-AEE2-D565E00D15E0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
