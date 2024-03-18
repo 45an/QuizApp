@@ -1,4 +1,5 @@
-﻿@page "/"
+﻿@using Vidazor
+@page "/"
 
 <PageTitle>Index</PageTitle>
 
@@ -7,3 +8,18 @@
 Welcome to your new app.
 
 <SurveyPrompt Title="How is Blazor working for you?" />
+
+
+<VidazorVideo @ref="video" OnTimeUpdate="@(() => Console.WriteLine($"Current time is: {video.CurrentTime}"))"
+              class="w-100" style="max-width:800px;"
+              autoplay="true">
+    <source src="/videos/phone.mp4"  />
+</VidazorVideo>
+
+<button type="button" @onclick="() => video.Play()">Play</button>
+<button type="button" @onclick="() => video.Pause()">Pause</button>
+
+
+@code {
+    VidazorVideo video;
+        }
