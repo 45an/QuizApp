@@ -19,7 +19,7 @@ namespace QuizApp.Server.Models
         public string? Media { get; set; }
         [Required]
         public int Time { get; set; } = 0;
-
-        public virtual List<Mock>? MocksAnswer { get; set; } = new List<Mock>();
+        public bool MultipleChoice { get; set; }
+        public virtual List<Mock>? MocksAnswer { get; set; }
     }
 }
