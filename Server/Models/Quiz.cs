@@ -13,7 +13,7 @@ namespace QuizApp.Server.Models
         [Required]
         public string? Title { get; set; }
         [Required]
-        public int HighScore { get; set; }
+        public DateTime DateCreated { get; set; }
         [Required]
         public int MaxScore { get; set; }
         [AllowNull]

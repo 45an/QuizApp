@@ -3,18 +3,12 @@
 #nullable disable
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Logging;
 using QuizApp.Server.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace QuizApp.Server.Areas.Identity.Pages.Account
 {
@@ -67,7 +61,7 @@ namespace QuizApp.Server.Areas.Identity.Pages.Account
             /// </summary>
             [Required]
             [DataType(DataType.Text)]
-            [Display(Name = "User Name")]
+            [Display(Name = "Username")]
             public string UserName { get; set; }
 
             /// <summary>

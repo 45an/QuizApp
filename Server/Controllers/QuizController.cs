@@ -24,7 +24,7 @@ namespace QuizApp.Server.Controllers
         }
 
         [HttpGet("getallquizzes")]
-        public async Task<List<QuizView>> GetAllQuizzes()
+        public List<QuizView> GetAllQuizzes()
         {
             var quizzes = _context.Quizzes.ToList();
 
@@ -32,24 +32,17 @@ namespace QuizApp.Server.Controllers
 
             foreach (var quiz in quizzes)
             {
-                var quizView = new QuizView
-                {
-                    Id = quiz.Id,
-                    Title = quiz.Title,
-                    MaxScore = quiz.MaxScore,
-                    GamesPlayed = quiz.GamesPlayed
-
-                };
-                quizzesView.Add(quizView); // Lägg till quizView i listan quizzesView
+                quizzesView.Add(QuizConverter.ConvertQuiz(quiz));
             }
 
             return quizzesView;
         }
-        [HttpGet("getquiz/{titel}")]
-        public async Task<ActionResult<QuizView>> GetQuiz(string titel)
+
+        [HttpGet("getquiz/{title}")]
+        public ActionResult GetQuiz(string title)
         {
             var quiz = _context.Quizzes.Include(q => q.Questions).ThenInclude(q => q.MocksAnswer)
-                .Where(t => t.Title == titel)
+                .Where(t => t.Title == title)
                 .FirstOrDefault();
 
             if (quiz == null)
@@ -57,40 +50,22 @@ namespace QuizApp.Server.Controllers
                 return NotFound(new { Message = "Quiz could not be found." }); // Returnera en NotFound HTTP-statuskod om quiz inte hittades med meddelandet "Quiz could not be found."
             }
 
-            var quizView = new QuizView 
-            {
-                Id = quiz.Id,
-                Title = quiz.Title,
-                GamesPlayed = quiz.GamesPlayed,
-                HighScore = quiz.HighScore,
-                MaxScore = quiz.MaxScore,
-                Questions = quiz.Questions.Select(q => new QuestionView
-                {
-                    Questions = q.Questions, 
-                    Answer = q.Answer,
-                    Media = q.Media,
-                    Time = q.Time,
-                    MocksAnswer = q.MocksAnswer.Select(m => new MockView
-                    {
-                        MockAnswer = m.MockAnswer
-                    }).ToList() // Lägg till varje MockView i listan MocksAnswer
-                }).ToList()  // Lägg till varje QuestionView i listan Questions
-            };
-
-            return quizView;
+            //var quizView = QuizConverter.ConvertQuiz(quiz);
+            return Ok(quiz);
         }
 
 
         [HttpPost("addquiz")]
-        public async Task<ActionResult> AddQuiz([FromBody] QuizView quiz)
+        public async Task<ActionResult> AddQuiz([FromBody] Quiz quiz)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             // Skapa ett nytt Quiz-objekt och lägg till det i databasen 
-            var quizToAdd = new Quiz
+            var quizToAdd = new Models.Quiz
             {
                 UserId = userId,
                 Title = quiz.Title,
+                DateCreated = DateTime.Now,
                 MaxScore = quiz.Questions.Count * 100, // Antag att varje fråga är värd 100 poäng eftersom det inte finns någon poäng för varje fråga
                 GamesPlayed = 0,
             };
@@ -125,7 +100,9 @@ namespace QuizApp.Server.Controllers
             }
             _context.SaveChanges();
 
-            return Ok(new { Message = "Quiz created successfully!" }); // Returnera en lyckad HTTP-statuskod om allt är klart med meddelandet "Quiz created successfully!"
+            var quizView = QuizConverter.ConvertQuiz(quiz);
+
+            return Ok(quizView);
         }
 
     }
