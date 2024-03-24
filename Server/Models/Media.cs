@@ -8,8 +8,9 @@ namespace QuizApp.Server.Models
         [Key]
         public int Id { get; set; }
         public Guid Guid { get; set; }
-        public string? ContentType { get; set; }
+        public string? Hash { get; set; }
         public string? Path { get; set; }
+        public string? ContentType { get; set; }
         public byte[]? FileBytes { get; set; }
 
         [ForeignKey("User")]

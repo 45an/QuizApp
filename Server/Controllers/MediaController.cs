@@ -8,6 +8,8 @@ using QuizApp.Server.Models.ViewModels;
 using System;
 using System.IO;
 using System.Linq;
+using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 namespace QuizApp.Server.Controllers
@@ -26,6 +28,7 @@ namespace QuizApp.Server.Controllers
             _userManager = userManager;
             _hostingEnvironment = hostingEnvironment;
         }
+
         [HttpGet("{guid}")]
         public async Task<IActionResult> GetMedia(Guid guid)
         {
@@ -51,9 +54,11 @@ namespace QuizApp.Server.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost("addMedia")]
         public async Task<IActionResult> UploadMediaAsync([FromForm] IFormFile file)
         {
+            var user = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
             // Kontrollera om filen är giltig och uppfyller kraven
             if (file == null || file.Length == 0)
                 return BadRequest("No file uploaded."); // Returnera en BadRequest HTTP-statuskod om ingen fil har laddats upp  
@@ -73,13 +78,43 @@ namespace QuizApp.Server.Controllers
 
             try
             {
+                // Calculate the hash of the uploaded file
+                var contentBytes = new byte[file.Length];
+                using (var stream = file.OpenReadStream())
+                {
+                    await stream.ReadAsync(contentBytes, 0, contentBytes.Length);
+                }
+                var hash = CalculateHash(contentBytes);
 
-                // Tillfällig kod för att visa att uppladdningen lyckades
+                // Check if the same hash already exists in the database
+                var existingMedia = _context.Media.FirstOrDefault(m => m.Hash == hash);
+                if (existingMedia != null) { return Ok(existingMedia); }
+                existingMedia = _context.Media.FirstOrDefault(m => m.FileBytes == contentBytes);
+                if (existingMedia != null) { return Ok(existingMedia); }
+
+                var uploadsFolder = Path.Combine(_hostingEnvironment.WebRootPath, "uploads");
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                var uniqueFileName = Guid.NewGuid().ToString() + "_" + file.FileName; 
+                var relativeFilePath = Path.Combine("uploads", uniqueFileName); // Path relative to wwwroot
+                var filePath = Path.Combine(_hostingEnvironment.WebRootPath, relativeFilePath);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
                 var newMedia = new Media
                 {
                     Guid = Guid.NewGuid(),
+                    Hash = hash,
+                    Path = relativeFilePath, 
                     ContentType = file.ContentType,
-                    Path = "YourFilePathHere", // ett annat sätt att hantera filen
+                    FileBytes = contentBytes,
+                    UserId = user
                 };
 
                 _context.Media.Add(newMedia);
@@ -90,6 +125,16 @@ namespace QuizApp.Server.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, $"An error occurred while uploading media: {ex.Message}"); // Returnera en 500 HTTP-statuskod om ett fel inträffade  
+            }
+        }
+
+        // Method to calculate the hash of a byte array
+        private string CalculateHash(byte[] bytes)
+        {
+            using (var sha256 = SHA256.Create())
+            {
+                var hash = sha256.ComputeHash(bytes);
+                return Convert.ToBase64String(hash);
             }
         }
     }

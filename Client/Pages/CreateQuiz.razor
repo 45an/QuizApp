@@ -1,6 +1,177 @@
 ﻿@page "/createQuiz"
-<h3>CreateQuiz</h3>
+
+@using Toolbelt.Blazor.FileDropZone
+
+@inject HttpClient httpClient
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+
+<h1>Create Quiz</h1>
+<hr />
+
+@if (!string.IsNullOrEmpty(ErrorText))
+{
+    <div class="alert alert-danger" role="alert">
+        @ErrorText
+    </div>
+}
+
+<div class="container">
+    <form id="quiz-form" @onsubmit="CreateQuizPost">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Quiz Title"
+                    id="title" name="Title" required>
+                </div>
+            </div>
+        </div>
+        <br />
+        @for (int i = 1; i <= questionCount; i++)
+        {
+            <div class="question">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Question" id="question@(i)"
+                                   name="Questions[@(i - 1)].Questions" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Answer" id="answer@(i)"
+                                   name="Questions[@(i - 1)].Answer" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <FileDropZone class="drop-zone">
+                        <InputFile class="form-control" id=@($"media{i}")
+                        OnChange="@(async (InputFileChangeEventArgs args) => await OnInputFileChange(args, i))"
+                        accept=".jpg,.jpeg,.png,.gif,.mp4"/>
+                    </FileDropZone>
+                </div>
+            </div>
+            @if (ImageUrls.ContainsKey(i))
+            {
+                    @* <VidazorVideo controls class="img-fluid">
+                        class="w-100" style="max-width:800px;"
+                        <source src="@ImageUrls[i]" type="@SelectedFiles[i].ContentType">
+                    </VidazorVideo> *@
+                <img src="@($"{NavigationManager.BaseUri}{ImageUrls[i]}")" class="w-100" style="max-width:inherit;" />
+            }
+        <br />
+        }
+        <button type="button" class="btn btn-primary" id="add-question" @onclick="AddQuestion">Add Another Question</button>
+        <button type="button" class="btn btn-danger" id="remove-question" @onclick="RemoveQuestion">Remove Question</button>
+        <hr />
+        <button type="submit" class="btn btn-success">Create Quiz</button>
+    </form>
+</div>
 
 @code {
+    VidazorVideo video;
 
+    private Dictionary<int, string> ImageUrls = new Dictionary<int, string>();
+    private Dictionary<int, IBrowserFile> SelectedFiles = new Dictionary<int, IBrowserFile>();
+    private string ErrorText = null;
+    private int questionCount = 1;
+
+    private void AddQuestion()
+    {
+        questionCount = Math.Min(questionCount + 1, 6);
+    }
+
+    private void RemoveQuestion()
+    {
+        questionCount = Math.Max(1, questionCount - 1);
+    }
+
+    private async Task CreateQuizPost()
+    {
+        try
+        {
+            var formData = new MultipartFormDataContent();
+
+            formData.Add(new StringContent(await JSRuntime.InvokeAsync<string>
+                ("document.getElementById", "title").ConfigureAwait(false)), "Title");
+
+            for (int i = 1; i <= questionCount; i++)
+            {
+                formData.Add(new StringContent(await JSRuntime.InvokeAsync<string>
+                    ("document.getElementById", $"question{i}").ConfigureAwait(false)), 
+                    $"Questions[{i - 1}].Questions");
+
+                formData.Add(new StringContent(await JSRuntime.InvokeAsync<string>
+                    ("document.getElementById", $"answer{i}").ConfigureAwait(false)), 
+                    $"Questions[{i - 1}].Answer");
+
+                if (SelectedFiles.ContainsKey(i))
+                {
+                    var fileContent = new StreamContent(SelectedFiles[i].OpenReadStream());
+                    formData.Add(fileContent, $"Questions[{i - 1}].Media", SelectedFiles[i].Name);
+                }
+            }
+
+            var response = await httpClient.PostAsJsonAsync("/api/Quiz/addquiz", formData).ConfigureAwait(false);
+            response.EnsureSuccessStatusCode();
+
+            // Handle success response
+            // For example, you can redirect to another page
+        }
+        catch (Exception ex)
+        {
+            ErrorText = ex.Message;
+        }
+    }
+
+    private async Task OnInputFileChange(InputFileChangeEventArgs e, int questionIndex)
+    {
+        var file = e.File;
+
+        SelectedFiles[questionIndex] = file;
+        this.ErrorText = null;
+
+        int maxMb = 13;
+        long megaByte = 1024 * 1024;
+        long maxAllowedSizeInBytes = maxMb * megaByte;
+        if (file.Size > maxAllowedSizeInBytes)
+        {
+            this.ErrorText = "Chosen file is too large  (Max: 13Mb)";
+            return;
+        }
+
+        // Check file type
+        string[] permittedFileTypes = { ".jpg", ".jpeg", ".png", ".gif", ".mp4" };
+        var extension = Path.GetExtension(file.Name)?.ToLowerInvariant();
+        if (string.IsNullOrEmpty(extension) || !permittedFileTypes.Contains(extension))
+        {
+            this.ErrorText = $"Invalid file type. \n Permitted files are; {permittedFileTypes}";
+            return;
+        }
+
+        try
+        {
+            // Create form data
+            var formData = new MultipartFormDataContent();
+            formData.Add(new StreamContent(file.OpenReadStream()), "file", file.Name);
+
+            // Add content type to the form data
+            formData.Add(new StringContent(file.ContentType), "contentType");
+
+            // Make POST request to MediaController
+            var response = await httpClient.PostAsync("/api/Media/addMedia", formData);
+            response.EnsureSuccessStatusCode();
+
+            // Handle success response
+            var json = await response.Content.ReadAsStringAsync();
+            dynamic media = JObject.Parse(json);
+            // Update your model or UI with the media path
+            ImageUrls[questionIndex] = media.path;
+        }
+        catch (Exception ex)
+        {
+            ErrorText = ex.Message;
+        }
+    }
 }

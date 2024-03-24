@@ -630,3 +630,4 @@ _Pvt_Extensions
 .fake/
 
 .DS_Store
+/Server/wwwroot/uploads
