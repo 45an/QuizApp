@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using QuizApp.Server.Data;
 using QuizApp.Server.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Exchange.WebServices.Data;
 
 namespace QuizApp
 {

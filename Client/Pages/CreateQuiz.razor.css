@@ -1,0 +1,23 @@
+﻿
+::deep .drop-zone {
+    padding: 1rem;
+    border: dashed 2px transparent;
+    transition: border linear 0.2s;
+}
+
+    ::deep .drop-zone.hover {
+        border: dashed 2px cyan;
+        border-radius: 1rem;
+    }
+
+.container {
+}
+
+.question {
+    border: 1px solid rgba(0,0,0,.125);
+    border-radius: 0.25rem;
+}
+
+.form-group {
+
+}

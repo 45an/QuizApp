@@ -7,9 +7,10 @@
             var mediaView = new MediaView();
 
             mediaView.Guid = media.Guid;
+            mediaView.Hash = media.Hash;
             mediaView.Path = media.Path;
-            mediaView.FileBytes = media.FileBytes;
             mediaView.ContentType = media.ContentType;
+            mediaView.FileBytes = media.FileBytes;
 
             return mediaView;
         }
