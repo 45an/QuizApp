@@ -1,16 +1,16 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Exchange.WebServices.Data;
 using QuizApp.Server.Data;
 using QuizApp.Server.Models;
 using QuizApp.Server.Models.ViewModels;
-using System;
-using System.IO;
-using System.Linq;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Threading.Tasks;
 
 namespace QuizApp.Server.Controllers
 {
@@ -22,7 +22,11 @@ namespace QuizApp.Server.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IWebHostEnvironment _hostingEnvironment;
 
-        public MediaController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IWebHostEnvironment hostingEnvironment)
+        public MediaController(
+            ApplicationDbContext context,
+            UserManager<ApplicationUser> userManager,
+            IWebHostEnvironment hostingEnvironment
+        )
         {
             _context = context;
             _userManager = userManager;
@@ -61,7 +65,7 @@ namespace QuizApp.Server.Controllers
 
             // Kontrollera om filen är giltig och uppfyller kraven
             if (file == null || file.Length == 0)
-                return BadRequest("No file uploaded."); // Returnera en BadRequest HTTP-statuskod om ingen fil har laddats upp  
+                return BadRequest("No file uploaded."); // Returnera en BadRequest HTTP-statuskod om ingen fil har laddats upp
 
             int maxMb = 13;
             long megaByte = 1024 * 1024;
@@ -88,9 +92,15 @@ namespace QuizApp.Server.Controllers
 
                 // Check if the same hash already exists in the database
                 var existingMedia = _context.Media.FirstOrDefault(m => m.Hash == hash);
-                if (existingMedia != null) { return Ok(existingMedia); }
+                if (existingMedia != null)
+                {
+                    return Ok(existingMedia);
+                }
                 existingMedia = _context.Media.FirstOrDefault(m => m.FileBytes == contentBytes);
-                if (existingMedia != null) { return Ok(existingMedia); }
+                if (existingMedia != null)
+                {
+                    return Ok(existingMedia);
+                }
 
                 var uploadsFolder = Path.Combine(_hostingEnvironment.WebRootPath, "uploads");
                 if (!Directory.Exists(uploadsFolder))
@@ -98,9 +108,12 @@ namespace QuizApp.Server.Controllers
                     Directory.CreateDirectory(uploadsFolder);
                 }
 
-                var uniqueFileName = Guid.NewGuid().ToString() + "_" + file.FileName; 
+                var uniqueFileName = Guid.NewGuid().ToString() + "_" + file.FileName;
                 var relativeFilePath = Path.Combine("uploads", uniqueFileName); // Path relative to wwwroot
                 var filePath = Path.Combine(_hostingEnvironment.WebRootPath, relativeFilePath);
+
+                var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}";
+                var fullPath = $"{baseUrl}/{relativeFilePath.Replace("\\", "/")}";
 
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
@@ -111,9 +124,9 @@ namespace QuizApp.Server.Controllers
                 {
                     Guid = Guid.NewGuid(),
                     Hash = hash,
-                    Path = relativeFilePath, 
+                    Path = fullPath,
                     ContentType = file.ContentType,
-                    FileBytes = contentBytes,
+                    //FileBytes = contentBytes,
                     UserId = user
                 };
 
@@ -124,7 +137,7 @@ namespace QuizApp.Server.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"An error occurred while uploading media: {ex.Message}"); // Returnera en 500 HTTP-statuskod om ett fel inträffade  
+                return StatusCode(500, $"An error occurred while uploading media: {ex.Message}"); // Returnera en 500 HTTP-statuskod om ett fel inträffade
             }
         }
 

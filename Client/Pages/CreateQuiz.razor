@@ -1,6 +1,7 @@
 ﻿@page "/createQuiz"
 
 @using Toolbelt.Blazor.FileDropZone
+@using Vidazor
 
 @inject HttpClient httpClient
 @inject IJSRuntime JSRuntime
@@ -18,48 +19,51 @@
 
 <div class="container">
     <form id="quiz-form" @onsubmit="CreateQuizPost">
-        <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-6 w-100">
                 <div class="form-group">
                     <input type="text" class="form-control" placeholder="Quiz Title"
                     id="title" name="Title" required>
                 </div>
             </div>
-        </div>
         <br />
         @for (int i = 1; i <= questionCount; i++)
         {
-            <div class="question">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <input type="text" class="form-control" placeholder="Question" id="question@(i)"
-                                   name="Questions[@(i - 1)].Questions" required>
+            <div class="question d-flex flex-column">
+                <h2 class="p-2 mb-0">Question @questionCount</h2>
+                <div class="d-flex flex-row flex-wrap flex-grow-1 m-0 p-2 gap-2">
+                    <div class="d-flex flex-column w-45 gap-1 flex-grow-1">
+                        <div class="flex-grow">
+                            <div class="form-group">
+                                <input type="text" class="form-control" placeholder="Question"
+                                id="question@(i)" name="Questions@(i - 1).Questions" required>
+                            </div>
+                        </div>
+                        <div class="flex-grow">
+                            <div class="form-group">
+                                <input type="text" class="form-control" placeholder="Answer"
+                                id="answer@(i)" name="Questions@(i - 1).Answer" required>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <input type="text" class="form-control" placeholder="Answer" id="answer@(i)"
-                                   name="Questions[@(i - 1)].Answer" required>
-                        </div>
+                    <div class="form-group d-flex flex-wrap w-45 flex-grow-0">
+                        <FileDropZone class="drop-zone w-100">
+                            <InputFile class="form-control" id=@($"media{i}")
+                            OnChange="@(async (InputFileChangeEventArgs args) => await OnInputFileChange(args, i))"
+                            accept=".jpg,.jpeg,.png,.gif,.mp4"/>
+                        </FileDropZone>
                     </div>
                 </div>
-                <div class="form-group">
-                    <FileDropZone class="drop-zone">
-                        <InputFile class="form-control" id=@($"media{i}")
-                        OnChange="@(async (InputFileChangeEventArgs args) => await OnInputFileChange(args, i))"
-                        accept=".jpg,.jpeg,.png,.gif,.mp4"/>
-                    </FileDropZone>
-                </div>
+                @if (ImageUrls.ContainsKey(i))
+                {
+                        @* <VidazorVideo controls class="img-fluid">
+                            class="w-100" style="max-width:inherit;"
+                            <source src="@ImageUrls[i]" type="@SelectedFiles[i].ContentType">
+                        </VidazorVideo> *@
+                    <img src="@ImageUrls[i]" class="w-100" style="max-width:inherit;" />
+                }
+                @* <img src="https://localhost:7086/uploads/d09e0fdc-8d96-478b-9a99-0f4d49a2d37e_GIJem30WYAAvLRJ.jpg"
+                class="w-100" style="max-width:inherit;" /> *@
             </div>
-            @if (ImageUrls.ContainsKey(i))
-            {
-                    @* <VidazorVideo controls class="img-fluid">
-                        class="w-100" style="max-width:800px;"
-                        <source src="@ImageUrls[i]" type="@SelectedFiles[i].ContentType">
-                    </VidazorVideo> *@
-                <img src="@($"{NavigationManager.BaseUri}{ImageUrls[i]}")" class="w-100" style="max-width:inherit;" />
-            }
         <br />
         }
         <button type="button" class="btn btn-primary" id="add-question" @onclick="AddQuestion">Add Another Question</button>
@@ -72,10 +76,10 @@
 @code {
     VidazorVideo video;
 
-    private Dictionary<int, string> ImageUrls = new Dictionary<int, string>();
-    private Dictionary<int, IBrowserFile> SelectedFiles = new Dictionary<int, IBrowserFile>();
-    private string ErrorText = null;
-    private int questionCount = 1;
+    Dictionary<int, string> ImageUrls = new Dictionary<int, string>();
+    Dictionary<int, IBrowserFile> SelectedFiles = new Dictionary<int, IBrowserFile>();
+    string ErrorText = null;
+    int questionCount = 1;
 
     private void AddQuestion()
     {
@@ -99,11 +103,11 @@
             for (int i = 1; i <= questionCount; i++)
             {
                 formData.Add(new StringContent(await JSRuntime.InvokeAsync<string>
-                    ("document.getElementById", $"question{i}").ConfigureAwait(false)), 
+                    ("document.getElementById", $"question{i}").ConfigureAwait(false)),
                     $"Questions[{i - 1}].Questions");
 
                 formData.Add(new StringContent(await JSRuntime.InvokeAsync<string>
-                    ("document.getElementById", $"answer{i}").ConfigureAwait(false)), 
+                    ("document.getElementById", $"answer{i}").ConfigureAwait(false)),
                     $"Questions[{i - 1}].Answer");
 
                 if (SelectedFiles.ContainsKey(i))
@@ -165,9 +169,8 @@
 
             // Handle success response
             var json = await response.Content.ReadAsStringAsync();
-            dynamic media = JObject.Parse(json);
-            // Update your model or UI with the media path
-            ImageUrls[questionIndex] = media.path;
+            var media = JObject.Parse(json);
+            ImageUrls[questionIndex] = media.Path;
         }
         catch (Exception ex)
         {
