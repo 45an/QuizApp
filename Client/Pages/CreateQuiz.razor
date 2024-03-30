@@ -1,8 +1,5 @@
 ﻿@page "/createQuiz"
 
-@using Toolbelt.Blazor.FileDropZone
-@using Vidazor
-
 @inject HttpClient httpClient
 @inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
@@ -17,78 +14,177 @@
     </div>
 }
 
-<div class="container">
+@* <div class="container">
     <form id="quiz-form" @onsubmit="CreateQuizPost">
-            <div class="col-md-6 w-100">
-                <div class="form-group">
-                    <input type="text" class="form-control" placeholder="Quiz Title"
-                    id="title" name="Title" required>
-                </div>
+        <div class="col-md-6 w-100">
+            <div class="form-group">
+                <input type="text" class="form-control" placeholder="Quiz Title" @bind="Quiz.Title" required>
             </div>
+        </div>
         <br />
-        @for (int i = 1; i <= questionCount; i++)
+        @foreach (var question in Quiz.Questions)
         {
             <div class="question d-flex flex-column">
-                <h2 class="p-2 mb-0">Question @questionCount</h2>
+                <h2 class="p-2 mb-0">Question @(question.Index + 1)</h2>
                 <div class="d-flex flex-row flex-wrap flex-grow-1 m-0 p-2 gap-2">
-                    <div class="d-flex flex-column w-45 gap-1 flex-grow-1">
+                    <div class="d-flex flex-column w-55 gap-1 flex-grow-1">
                         <div class="flex-grow">
                             <div class="form-group">
-                                <input type="text" class="form-control" placeholder="Question"
-                                id="question@(i)" name="Questions@(i - 1).Questions" required>
+                                <input type="text" class="form-control" placeholder="Question" @bind="question.Question" required>
                             </div>
                         </div>
                         <div class="flex-grow">
                             <div class="form-group">
-                                <input type="text" class="form-control" placeholder="Answer"
-                                id="answer@(i)" name="Questions@(i - 1).Answer" required>
+                                <input type="text" class="form-control" placeholder="Answer" @bind="question.Answer" required>
                             </div>
                         </div>
                     </div>
-                    <div class="form-group d-flex flex-wrap w-45 flex-grow-0">
+                    <div class="form-group d-flex flex-wrap w-35 flex-grow-1">
                         <FileDropZone class="drop-zone w-100">
-                            <InputFile class="form-control" id=@($"media{i}")
-                            OnChange="@(async (InputFileChangeEventArgs args) => await OnInputFileChange(args, i))"
-                            accept=".jpg,.jpeg,.png,.gif,.mp4"/>
+                            <InputFile class="form-control" id=@($"media{question.Index}") OnChange="@(async (InputFileChangeEventArgs args) => await OnInputFileChange(args, question.Index))" accept=".jpg,.jpeg,.png,.gif,.mp4,.mov" maxfilesize="134217728" />
                         </FileDropZone>
                     </div>
                 </div>
-                @if (ImageUrls.ContainsKey(i))
+                @if (!string.IsNullOrEmpty(question.ImageUrl) && !string.IsNullOrEmpty(question.ContentType))
                 {
-                        @* <VidazorVideo controls class="img-fluid">
-                            class="w-100" style="max-width:inherit;"
-                            <source src="@ImageUrls[i]" type="@SelectedFiles[i].ContentType">
-                        </VidazorVideo> *@
-                    <img src="@ImageUrls[i]" class="w-100" style="max-width:inherit;" />
+                    <div class="position-relative w-auto text-center border-dark border-4 p-1">
+                        @if (question.ContentType.Contains("image"))
+                        {
+                            <img src="@question.ImageUrl" class="w-100" style="max-width:inherit;" />
+                        }
+                        @if (question.ContentType.Contains("video"))
+                        {
+                            <VidazorVideo controls class="img-fluid w100" style="max-width:inherit;" type="@question.ContentType">
+                                <source src="@question.ImageUrl" class="w-100">
+                            </VidazorVideo>
+                        }
+                        <button type="button" class="btn btn-secondary position-absolute top-0 end-0 invisible hover" @onclick="() => RemoveImage(question)">X</button>
+                    </div>
                 }
-                @* <img src="https://localhost:7086/uploads/d09e0fdc-8d96-478b-9a99-0f4d49a2d37e_GIJem30WYAAvLRJ.jpg"
-                class="w-100" style="max-width:inherit;" /> *@
             </div>
-        <br />
+            <br />
         }
-        <button type="button" class="btn btn-primary" id="add-question" @onclick="AddQuestion">Add Another Question</button>
-        <button type="button" class="btn btn-danger" id="remove-question" @onclick="RemoveQuestion">Remove Question</button>
+        <button type="button" class="btn btn-primary" @onclick="AddQuestion">Add Another Question</button>
+        <button type="button" class="btn btn-danger" @onclick="RemoveQuestion">Remove Question</button>
+        <hr />
+        <button type="submit" class="btn btn-success">Create Quiz</button>
+    </form>
+</div> *@
+
+<div class="container">
+    <form id="quiz-form" @onsubmit="CreateQuizPost">
+        <div class="carousel-container">
+            <div id="QuizFormCarousel" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    @foreach (var question in Quiz.Questions)
+                    {
+                        <div class="carousel-item @(question.Index == 0 ? "active" : "") question-@(question.Index)">
+                            <div class="question d-flex flex-column">
+                                <h2 class="p-2 mb-0">Question @(question.Index + 1)</h2>
+                                <div class="d-flex flex-row flex-wrap flex-grow-1 m-0 p-2 gap-2">
+                                    <div class="d-flex flex-column w-55 gap-1 flex-grow-1">
+                                        <div class="flex-grow">
+                                            <div class="form-group">
+                                                <input type="text" class="form-control" placeholder="Question" @bind="question.Question" required>
+                                            </div>
+                                        </div>
+                                        <div class="flex-grow">
+                                            <div class="form-group">
+                                                <input type="text" class="form-control" placeholder="Answer" @bind="question.Answer" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group d-flex flex-wrap w-35 flex-grow-1">
+                                        <FileDropZone class="drop-zone w-100">
+                                            <InputFile class="form-control" id=@($"media{question.Index}") OnChange="@(async (InputFileChangeEventArgs args) => await OnInputFileChange(args, question.Index))" accept=".jpg,.jpeg,.png,.gif,.mp4,.mov" maxfilesize="134217728" />
+                                        </FileDropZone>
+                                    </div>
+                                </div>
+                                @if (!string.IsNullOrEmpty(question.ImageUrl) && !string.IsNullOrEmpty(question.ContentType))
+                                {
+                                    <div class="position-relative w-auto text-center border-dark border-4 p-1">
+                                        @if (question.ContentType.Contains("image"))
+                                        {
+                                            <img src="@question.ImageUrl" class="w-100" style="max-width:inherit;" />
+                                        }
+                                        @if (question.ContentType.Contains("video"))
+                                        {
+                                            <VidazorVideo controls class="img-fluid w100" style="max-width:inherit;" type="@question.ContentType">
+                                                <source src="@question.ImageUrl" class="w-100">
+                                            </VidazorVideo>
+                                        }
+                                        <button type="button" class="btn btn-secondary position-absolute top-0 end-0 invisible hover" @onclick="() => RemoveImage(question)">X</button>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex flex-row gap-2 p-4">
+            <button class="bg-black d-flex" type="button" data-bs-target="#QuizFormCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <ol class="carousel-indicators  border-1 border-black position-relative bg-black list-unstyled m-0 p-1 flex-grow-1">
+                @foreach (var question in Quiz.Questions)
+                {
+                    <li data-bs-target="#QuizFormCarousel" data-bs-slide-to="@question.Index" class="w-3 h-1 m-0 p-1 @(question.Index == 0 ? "active" : "")"></li>
+                }
+            </ol>
+            <button class="bg-black d-flex" type="button" data-bs-target="#QuizFormCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+
+        <br />
+
+        <button type="button" class="btn btn-primary" @onclick="AddQuestion">Add Another Question</button>
+        <button type="button" class="btn btn-danger" @onclick="RemoveQuestion">Remove Question</button>
         <hr />
         <button type="submit" class="btn btn-success">Create Quiz</button>
     </form>
 </div>
 
 @code {
-    VidazorVideo video;
+    class QuizQuestion
+    {
+        public int Index { get; set; }
+        public string Question { get; set; }
+        public string Answer { get; set; }
+        public string ImageUrl { get; set; }
+        public IBrowserFile File { get; set; }
+        public string ContentType { get; set; }
+    }
 
-    Dictionary<int, string> ImageUrls = new Dictionary<int, string>();
-    Dictionary<int, IBrowserFile> SelectedFiles = new Dictionary<int, IBrowserFile>();
+    class QuizModel
+    {
+        public string Title { get; set; }
+        public List<QuizQuestion> Questions { get; set; } = new List<QuizQuestion>();
+    }
+
+    QuizModel Quiz = new QuizModel() { Questions = { new QuizQuestion { Index = 0 } } }; // Start with one blank question
     string ErrorText = null;
-    int questionCount = 1;
 
     private void AddQuestion()
     {
-        questionCount = Math.Min(questionCount + 1, 6);
+        if (Quiz.Questions.Count < 13)
+            Quiz.Questions.Add(new QuizQuestion { Index = Quiz.Questions.Count });
     }
 
     private void RemoveQuestion()
     {
-        questionCount = Math.Max(1, questionCount - 1);
+        if (Quiz.Questions.Count > 1)
+            Quiz.Questions.RemoveAt(Quiz.Questions.Count - 1);
+    }
+
+    private void RemoveImage(QuizQuestion question)
+    {
+        question.ImageUrl = null;
+        question.File = null;
     }
 
     private async Task CreateQuizPost()
@@ -96,28 +192,19 @@
         try
         {
             var formData = new MultipartFormDataContent();
+            formData.Add(new StringContent(Quiz.Title), "Title");
 
-            formData.Add(new StringContent(await JSRuntime.InvokeAsync<string>
-                ("document.getElementById", "title").ConfigureAwait(false)), "Title");
-
-            for (int i = 1; i <= questionCount; i++)
+            foreach (var question in Quiz.Questions)
             {
-                formData.Add(new StringContent(await JSRuntime.InvokeAsync<string>
-                    ("document.getElementById", $"question{i}").ConfigureAwait(false)),
-                    $"Questions[{i - 1}].Questions");
-
-                formData.Add(new StringContent(await JSRuntime.InvokeAsync<string>
-                    ("document.getElementById", $"answer{i}").ConfigureAwait(false)),
-                    $"Questions[{i - 1}].Answer");
-
-                if (SelectedFiles.ContainsKey(i))
+                if (question.File != null)
                 {
-                    var fileContent = new StreamContent(SelectedFiles[i].OpenReadStream());
-                    formData.Add(fileContent, $"Questions[{i - 1}].Media", SelectedFiles[i].Name);
+                    formData.Add(new StringContent(question.Question), $"Questions[{question.Index}].Question");
+                    formData.Add(new StringContent(question.Answer), $"Questions[{question.Index}].Answer");
+                    formData.Add(new StreamContent(question.File.OpenReadStream()), $"Questions[{question.Index}].Media", question.File.Name);
                 }
             }
 
-            var response = await httpClient.PostAsJsonAsync("/api/Quiz/addquiz", formData).ConfigureAwait(false);
+            var response = await httpClient.PostAsync("/api/Quiz/addquiz", formData);
             response.EnsureSuccessStatusCode();
 
             // Handle success response
@@ -131,26 +218,37 @@
 
     private async Task OnInputFileChange(InputFileChangeEventArgs e, int questionIndex)
     {
+        var question = Quiz.Questions.FirstOrDefault(q => q.Index == questionIndex);
+        if (question == null)
+            return;
+
         var file = e.File;
+        question.File = file;
+        ErrorText = null;
 
-        SelectedFiles[questionIndex] = file;
-        this.ErrorText = null;
-
+        // Check file size
         int maxMb = 13;
         long megaByte = 1024 * 1024;
         long maxAllowedSizeInBytes = maxMb * megaByte;
-        if (file.Size > maxAllowedSizeInBytes)
+        long fileSize = file.Size;
+        if (fileSize > maxAllowedSizeInBytes)
         {
-            this.ErrorText = "Chosen file is too large  (Max: 13Mb)";
+            // Format the file size with one decimal place
+            double fileSizeInMb = (double)fileSize / megaByte;
+            string fileSizeFormatted = fileSizeInMb.ToString("0.0");
+
+            this.ErrorText = $"Supplied file with size {fileSizeFormatted} MB exceeds the maximum of {maxMb} megabytes.";
+            Console.WriteLine(this.ErrorText);
             return;
         }
 
         // Check file type
-        string[] permittedFileTypes = { ".jpg", ".jpeg", ".png", ".gif", ".mp4" };
+        string[] permittedFileTypes = { ".jpg", ".jpeg", ".png", ".gif", ".mp4", ".mov" };
         var extension = Path.GetExtension(file.Name)?.ToLowerInvariant();
         if (string.IsNullOrEmpty(extension) || !permittedFileTypes.Contains(extension))
         {
-            this.ErrorText = $"Invalid file type. \n Permitted files are; {permittedFileTypes}";
+            this.ErrorText = $"Invalid file type. Permitted files are:\n{string.Join("\n", permittedFileTypes)}";
+            Console.WriteLine(this.ErrorText);
             return;
         }
 
@@ -158,10 +256,9 @@
         {
             // Create form data
             var formData = new MultipartFormDataContent();
-            formData.Add(new StreamContent(file.OpenReadStream()), "file", file.Name);
-
-            // Add content type to the form data
-            formData.Add(new StringContent(file.ContentType), "contentType");
+            var streamContent = new StreamContent(file.OpenReadStream(maxAllowedSizeInBytes));
+            streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType); // Set content type
+            formData.Add(streamContent, "file", file.Name);
 
             // Make POST request to MediaController
             var response = await httpClient.PostAsync("/api/Media/addMedia", formData);
@@ -169,12 +266,28 @@
 
             // Handle success response
             var json = await response.Content.ReadAsStringAsync();
-            var media = JObject.Parse(json);
-            ImageUrls[questionIndex] = media.Path;
+            Console.WriteLine("JSON Response: " + json);
+
+            dynamic media = JObject.Parse(json);
+            if (media != null && media.path != null)
+            {
+                Console.WriteLine("questionIndex: " + questionIndex);
+                string path = media.path;
+                string contentType = media.contentType;
+
+                // Add or update the URL in the dictionary
+                question.ImageUrl = path;
+                question.ContentType = contentType;
+            }
+            else
+            {
+                ErrorText = "Failed to deserialize JSON or missing image path.";
+            }
         }
         catch (Exception ex)
         {
             ErrorText = ex.Message;
+            Console.WriteLine("Exception: " + ex.Message);
         }
     }
 }

@@ -63,18 +63,17 @@ namespace QuizApp.Server.Controllers
         {
             var user = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            // Kontrollera om filen är giltig och uppfyller kraven
             if (file == null || file.Length == 0)
-                return BadRequest("No file uploaded."); // Returnera en BadRequest HTTP-statuskod om ingen fil har laddats upp
+                return BadRequest("No file uploaded.");
 
             int maxMb = 13;
             long megaByte = 1024 * 1024;
             long maxAllowedSizeInBytes = maxMb * megaByte;
 
             if (file.Length > maxAllowedSizeInBytes)
-                return BadRequest("File size exceeds the allowable limit."); // Returnera en BadRequest HTTP-statuskod om filen är för stor
+                return BadRequest("File size exceeds the allowable limit.");
 
-            string[] permittedFileTypes = { ".jpg", ".jpeg", ".png", ".gif", ".mp4" };
+            string[] permittedFileTypes = { ".jpg", ".jpeg", ".png", ".gif", ".mp4", ".mov" };
             var extension = Path.GetExtension(file.FileName)?.ToLowerInvariant();
 
             if (string.IsNullOrEmpty(extension) || !permittedFileTypes.Contains(extension))
