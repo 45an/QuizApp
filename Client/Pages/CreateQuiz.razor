@@ -14,7 +14,7 @@
     </div>
 }
 
-@* <div class="container">
+<div class="container">
     <form id="quiz-form" @onsubmit="CreateQuizPost">
         <div class="col-md-6 w-100">
             <div class="form-group">
@@ -41,10 +41,22 @@
                     </div>
                     <div class="form-group d-flex flex-wrap w-35 flex-grow-1">
                         <FileDropZone class="drop-zone w-100">
-                            <InputFile class="form-control" id=@($"media{question.Index}") OnChange="@(async (InputFileChangeEventArgs args) => await OnInputFileChange(args, question.Index))" accept=".jpg,.jpeg,.png,.gif,.mp4,.mov" maxfilesize="134217728" />
+                            <InputFile name="file" class="form-control" id=@($"media{question.Index}") OnChange="@(async (InputFileChangeEventArgs args) => await OnInputFileChange(args, question.Index))" accept=".jpg,.jpeg,.png,.gif,.mp4,.mov" maxfilesize="134217728" />
                         </FileDropZone>
                     </div>
                 </div>
+                @if (question.MultipleChoice)
+                {
+                    <div class="flex-grow">
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Mock Answer 1" @bind="question.MocksAnswer[0].MockAnswer" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Mock Answer 2" @bind="question.MocksAnswer[1].MockAnswer" required>
+                        </div>
+                        <!-- Add more mock answer fields as needed -->
+                    </div>
+                }
                 @if (!string.IsNullOrEmpty(question.ImageUrl) && !string.IsNullOrEmpty(question.ContentType))
                 {
                     <div class="position-relative w-auto text-center border-dark border-4 p-1">
@@ -69,9 +81,9 @@
         <hr />
         <button type="submit" class="btn btn-success">Create Quiz</button>
     </form>
-</div> *@
+</div>
 
-<div class="container">
+@* <div class="container">
     <form id="quiz-form" @onsubmit="CreateQuizPost">
         <div class="carousel-container">
             <div id="QuizFormCarousel" class="carousel slide" data-bs-ride="carousel">
@@ -147,7 +159,7 @@
         <hr />
         <button type="submit" class="btn btn-success">Create Quiz</button>
     </form>
-</div>
+</div>*@
 
 @code {
     class QuizQuestion
@@ -158,6 +170,12 @@
         public string ImageUrl { get; set; }
         public IBrowserFile File { get; set; }
         public string ContentType { get; set; }
+        public bool MultipleChoice { get; set; }
+        public virtual List<Mock>? MocksAnswer { get; set; }
+    }
+
+    class Mock {
+        public string? MockAnswer { get; set; }
     }
 
     class QuizModel
@@ -189,6 +207,11 @@
 
     private async Task CreateQuizPost()
     {
+        // Check file size
+        int maxMb = 13;
+        long megaByte = 1024 * 1024;
+        long maxAllowedSizeInBytes = maxMb * megaByte;
+
         try
         {
             var formData = new MultipartFormDataContent();
@@ -200,7 +223,17 @@
                 {
                     formData.Add(new StringContent(question.Question), $"Questions[{question.Index}].Question");
                     formData.Add(new StringContent(question.Answer), $"Questions[{question.Index}].Answer");
-                    formData.Add(new StreamContent(question.File.OpenReadStream()), $"Questions[{question.Index}].Media", question.File.Name);
+                    formData.Add(new StreamContent(question.File.OpenReadStream(maxAllowedSizeInBytes)), $"Questions[{question.Index}].Media", question.File.Name);
+                    formData.Add(new StringContent(question.MultipleChoice.ToString()), $"Questions[{question.Index}].MultipleChoice");
+
+                    if (question.MultipleChoice)
+                    {
+                        // Add mock answers
+                        foreach (var mockAnswer in question.MocksAnswer)
+                        {
+                            formData.Add(new StringContent(mockAnswer.MockAnswer), $"Questions[{question.Index}].MocksAnswer");
+                        }
+                    }
                 }
             }
 

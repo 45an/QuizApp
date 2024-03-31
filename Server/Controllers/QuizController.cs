@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuizApp.Server.Data;
 using QuizApp.Server.Models;
 using QuizApp.Server.Models.ViewModels;
-using System.Security.Claims;
 
 namespace QuizApp.Server.Controllers
 {
@@ -16,7 +16,11 @@ namespace QuizApp.Server.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public QuizController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IWebHostEnvironment webHostEnvironment)
+        public QuizController(
+            ApplicationDbContext context,
+            UserManager<ApplicationUser> userManager,
+            IWebHostEnvironment webHostEnvironment
+        )
         {
             _context = context;
             _userManager = userManager;
@@ -41,7 +45,9 @@ namespace QuizApp.Server.Controllers
         [HttpGet("getquiz/{title}")]
         public ActionResult GetQuiz(string title)
         {
-            var quiz = _context.Quizzes.Include(q => q.Questions).ThenInclude(q => q.MocksAnswer)
+            var quiz = _context
+                .Quizzes.Include(q => q.Questions)
+                .ThenInclude(q => q.MocksAnswer)
                 .Where(t => t.Title == title)
                 .FirstOrDefault();
 
@@ -54,58 +60,58 @@ namespace QuizApp.Server.Controllers
             return Ok(quiz);
         }
 
-
         [HttpPost("addquiz")]
-        public async Task<ActionResult> AddQuiz([FromBody] Quiz quiz)
+        public async Task<ActionResult> AddQuiz([FromBody] Quiz quizModel)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            // Skapa ett nytt Quiz-objekt och lägg till det i databasen 
+            // Create a new Quiz object and add it to the database
             var quizToAdd = new Models.Quiz
             {
                 UserId = userId,
-                Title = quiz.Title,
+                Title = quizModel.Title,
                 DateCreated = DateTime.Now,
-                MaxScore = quiz.Questions.Count * 100, // Antag att varje fråga är värd 100 poäng eftersom det inte finns någon poäng för varje fråga
+                MaxScore = quizModel.Questions.Count * 100, // Assume each question is worth 100 points since there's no point for each question
                 GamesPlayed = 0,
             };
             _context.Quizzes.Add(quizToAdd);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
-            // Loopa igenom varje fråga i quiz och lägg till dem i databasen
-            foreach (var question in quiz.Questions)
+            // Loop through each question in the quiz and add them to the database
+            foreach (var questionModel in quizModel.Questions)
             {
                 var questionToAdd = new Question
                 {
                     QuizId = quizToAdd.Id,
-                    Questions = question.Questions,
-                    Answer = question.Answer,
-                    Media = question.Media,
-                    Time = question.Time,
+                    Questions = questionModel.Questions,
+                    Answer = questionModel.Answer,
+                    Media = questionModel.Media,
+                    Time = questionModel.Time,
+                    MultipleChoice = questionModel.MultipleChoice,
                     MocksAnswer = new List<Mock>()
                 };
                 _context.Questions.Add(questionToAdd);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
 
-                // Loopa igenom varje MockAnswer för varje fråga och lägg till dem i databasen
-                foreach (var mock in question.MocksAnswer)
+                // Add mock answers if it's a multiple choice question
+                if (questionModel.MultipleChoice)
                 {
-                    var mockToAdd = new Mock
+                    foreach (var mockAnswerModel in questionModel.MocksAnswer)
                     {
-                        QuestionId = questionToAdd.Id,
-                        MockAnswer = mock.MockAnswer
-                    };
-                    _context.Mocks.Add(mockToAdd);
+                        var mockToAdd = new Mock
+                        {
+                            QuestionId = questionToAdd.Id,
+                            MockAnswer = mockAnswerModel.MockAnswer
+                        };
+                        _context.Mocks.Add(mockToAdd);
+                    }
+                    await _context.SaveChangesAsync();
                 }
             }
-            _context.SaveChanges();
 
-            var quizView = QuizConverter.ConvertQuiz(quiz);
+            var quizView = QuizConverter.ConvertQuiz(quizModel);
 
             return Ok(quizView);
         }
-
     }
 }
-
-

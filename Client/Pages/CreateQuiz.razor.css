@@ -1,12 +1,12 @@
 ﻿::deep .drop-zone {
     padding: 1rem;
-    border: dashed 2px red;
+    border: dashed 2px transparent;
     border-radius: 0.25rem;
     transition: border linear 0.2s;
 }
 
 ::deep .drop-zone.hover {
-    border: dashed 2px cyan;
+    border: dashed 2px gray;
 }
 
 .question {
