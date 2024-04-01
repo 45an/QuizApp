@@ -104,7 +104,7 @@
                     </div>
                 }
 
-                @if (!string.IsNullOrEmpty(question.Media.Path) && !string.IsNullOrEmpty(question.Media.ContentType))
+                @if (question.Media != null && !string.IsNullOrEmpty(question.Media.Path) && !string.IsNullOrEmpty(question.Media.ContentType))
                 {
                     <div class="position-relative w-auto text-center border-dark border-4 p-2">
                         @if (question.Media.ContentType.Contains("image"))
@@ -117,7 +117,7 @@
                                 <source src="@question.Media.Path" class="w-100">
                             </VidazorVideo>
                         }
-                        <button type="button" class="btn btn-secondary position-absolute top-0 end-0 invisible hover" @onclick="() => RemoveImage(question)">X</button>
+                        <button type="button" class="btn btn-secondary position-absolute top-0 end-0 hover" @onclick="() => RemoveImage(question)">X</button>
                     </div>
                 }
             </div>
@@ -146,7 +146,7 @@
         public int Index { get; set; }
         public string Questions { get; set; }
         public string Answer { get; set; }
-        public virtual MediaModel Media { get; set; }
+        public virtual MediaModel? Media { get; set; }
         public IBrowserFile File { get; set; }
         public bool MultipleChoice { get; set; }
         public virtual List<MockModel> MocksAnswers { get; set; }
@@ -159,7 +159,7 @@
                 new MockModel { MockAnswer = "" },
                 new MockModel { MockAnswer = "" }
             };
-            Media = new MediaModel();
+            //Media = new MediaModel();
         }
     }
 
@@ -223,7 +223,7 @@
 
     private void RemoveImage(QuizQuestion question)
     {
-        question.Media.Path = null;
+        question.Media = null;
         question.File = null;
     }
 
@@ -256,6 +256,13 @@
         var question = Quiz.Questions.FirstOrDefault(q => q.Index == questionIndex);
         if (question == null)
             return;
+
+
+        // Check if media is already initialized
+        if (question.Media == null)
+        {
+            question.Media = new MediaModel();
+        }
 
         var file = e.File;
         question.File = file;
@@ -304,17 +311,10 @@
             Console.WriteLine("JSON Response: " + json);
 
             var media = JsonConvert.DeserializeObject<MediaModel>(json);
-            if (media != null && media.Path != null)
-            {
-                question.Media.MediaGuid = media.MediaGuid;
-                question.Media.Hash = media.Hash;
-                question.Media.Path = media.Path;
-                question.Media.ContentType = media.ContentType;
-            }
-            else
-            {
-                ErrorText = "Failed to deserialize JSON or missing file path.";
-            }
+            question.Media.MediaGuid = media.MediaGuid;
+            question.Media.Hash = media.Hash;
+            question.Media.Path = media.Path;
+            question.Media.ContentType = media.ContentType;
         }
         catch (Exception ex)
         {

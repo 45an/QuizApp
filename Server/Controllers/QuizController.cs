@@ -75,7 +75,7 @@ namespace QuizApp.Server.Controllers
                 {
                     UserId = userId,
                     Title = quizModel.Title,
-                    DateCreated = DateTime.Now,
+                    DateCreated = DateTime.UtcNow,
                     MaxScore = quizModel.Questions.Count * 100, // Assuming each question is worth 100 points
                     GamesPlayed = 0,
                     Questions = new List<Question>() // Initialize the Questions collection
@@ -87,17 +87,17 @@ namespace QuizApp.Server.Controllers
                     {
                         Questions = questionModel.Questions,
                         Answer = questionModel.Answer,
-                        Media = questionModel.Media,
+                        //Media = null,
                         MultipleChoice = questionModel.MultipleChoice,
                         QuizId = quizToAdd.Id, // Set QuizId for the question
                         MocksAnswers = new List<Mock>()
                     };
 
-                    if (questionModel.Media.Path != null)
+                    if (questionModel.Media != null && questionModel.Media.Hash != null)
                     {
-                        // Fetch media based on the provided GUID
-                        var media = await _context.Media.FindAsync(
-                            Guid.Parse(questionModel.Media.MediaGuid.ToString())
+                        // Fetch media based on the provided Hash
+                        var media = _context.Media.FirstOrDefault(m =>
+                            m.Hash == questionModel.Media.Hash
                         );
                         // Associate media with the question
                         questionToAdd.Media = media;

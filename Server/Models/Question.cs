@@ -18,6 +18,7 @@ namespace QuizApp.Server.Models
 
         [Required]
         public string? Answer { get; set; }
+
         public virtual Media? Media { get; set; }
 
         [Required]

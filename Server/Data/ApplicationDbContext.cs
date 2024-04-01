@@ -10,14 +10,15 @@ namespace QuizApp.Server.Data
     {
         public ApplicationDbContext(
             DbContextOptions options,
-            IOptions<OperationalStoreOptions> operationalStoreOptions) : base(options, operationalStoreOptions)
-        {
-        }
+            IOptions<OperationalStoreOptions> operationalStoreOptions
+        )
+            : base(options, operationalStoreOptions) { }
+
         public DbSet<Quiz>? Quizzes { get; set; }
         public DbSet<Game>? Games { get; set; }
         public DbSet<Question>? Questions { get; set; }
         public DbSet<Media>? Media { get; set; }
         public DbSet<Mock>? Mocks { get; set; }
-        public DbSet<ApplicationUser> ApplicationUserModel { get; set; }
+        public DbSet<ApplicationUser>? ApplicationUserModel { get; set; }
     }
 }

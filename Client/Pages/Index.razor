@@ -9,13 +9,15 @@
     <Authorized>
         <h1>Welcome To the Quiz Game!</h1>
 
-        <div class="d-flex row flex-sm-wrap gap-4">
-            <QuizCard quizSource="/images/quiz_placeholder.png" />
-            <QuizCard quizSource="/images/quiz_placeholder.png" />
-            <QuizCard quizSource="/images/quiz_placeholder.png" />
-            <QuizCard quizSource="/images/quiz_placeholder.png" />
-            <QuizCard quizSource="/images/quiz_placeholder.png" />
-            <QuizCard quizSource="/images/quiz_placeholder.png" />
+        <div class="container">
+            <div class="d-flex flex-row flex-wrap flex-grow-1 gap-4 mg-0">
+                    <QuizCard quizSource="/images/quiz_placeholder.png" />
+                    <QuizCard quizSource="/images/quiz_placeholder.png" />
+                    <QuizCard quizSource="/images/quiz_placeholder.png" />
+                    <QuizCard quizSource="/images/quiz_placeholder.png" />
+                    <QuizCard quizSource="/images/quiz_placeholder.png" />
+                    <QuizCard quizSource="/images/quiz_placeholder.png" />
+            </div>
         </div>
 
         @* <VidazorVideo @ref="video"
@@ -29,6 +31,7 @@
     </Authorized>
     <NotAuthorized>
         <h1>NOT SIGNED IN</h1>
+        @* TODO: Add a guide to the game *@
     </NotAuthorized>
 </AuthorizeView>
 
