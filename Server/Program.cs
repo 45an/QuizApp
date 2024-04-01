@@ -1,8 +1,5 @@
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Exchange.WebServices.Data;
 using QuizApp.Server.Data;
 using QuizApp.Server.Models;
 
@@ -25,11 +22,16 @@ namespace QuizApp
             );
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-            builder
-                .Services.AddDefaultIdentity<ApplicationUser>(options =>
-                    options.SignIn.RequireConfirmedAccount = true
-                )
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+            builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
+            {
+                options.SignIn.RequireConfirmedAccount = true;
+                options.Password.RequireDigit = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequiredLength = 4;
+            })
+               .AddEntityFrameworkStores<ApplicationDbContext>();
 
             builder
                 .Services.AddIdentityServer()
