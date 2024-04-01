@@ -2,22 +2,23 @@
 {
     public class QuestionConverter
     {
-        public static QuestionView ConvertQuestion(Question question)
+        public static QuestionView Convert(Question question)
         {
-            var questionView = new QuestionView();
-
-            questionView.Id = question.Id;
-            questionView.QuizId = question.QuizId;
-            questionView.Questions = question.Questions;
-            questionView.Answer = question.Answer;
-            questionView.Media = question.Media;
-            questionView.Time = question.Time;
-            questionView.MultipleChoice = question.MultipleChoice;
+            var questionView = new QuestionView
+            {
+                Id = question.Id,
+                QuizId = question.QuizId,
+                Questions = question.Questions,
+                Answer = question.Answer,
+                Media = MediaConverter.Convert(question.Media),
+                Time = question.Time,
+                MultipleChoice = question.MultipleChoice
+            };
 
             var _mocks = new List<MockView>();
-            foreach (var m in question.MocksAnswer)
+            foreach (var m in question.MocksAnswers)
             {
-                _mocks.Add(MockConverter.ConvertMock(m));
+                _mocks.Add(MockConverter.Convert(m));
             }
             questionView.MocksAnswer = _mocks;
 

@@ -12,12 +12,11 @@ namespace QuizApp.Server.Models
         public int QuizId { get; set; }
         public Quiz? Quiz { get; set; }
 
-        [ForeignKey("User")]    
+        [ForeignKey("User")]
         public string? UserId { get; set; }
         public virtual ApplicationUser? User { get; set; }
 
         [Required]
         public int Score { get; set; }
-
     }
 }

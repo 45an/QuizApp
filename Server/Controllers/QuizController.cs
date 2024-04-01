@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System.Net.Http;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using QuizApp.Server.Data;
 using QuizApp.Server.Models;
 using QuizApp.Server.Models.ViewModels;
-using System.Security.Claims;
 
 namespace QuizApp.Server.Controllers
 {
@@ -16,7 +19,11 @@ namespace QuizApp.Server.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public QuizController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IWebHostEnvironment webHostEnvironment)
+        public QuizController(
+            ApplicationDbContext context,
+            UserManager<ApplicationUser> userManager,
+            IWebHostEnvironment webHostEnvironment
+        )
         {
             _context = context;
             _userManager = userManager;
@@ -32,7 +39,7 @@ namespace QuizApp.Server.Controllers
 
             foreach (var quiz in quizzes)
             {
-                quizzesView.Add(QuizConverter.ConvertQuiz(quiz));
+                quizzesView.Add(QuizConverter.Convert(quiz));
             }
 
             return quizzesView;
@@ -41,7 +48,9 @@ namespace QuizApp.Server.Controllers
         [HttpGet("getquiz/{title}")]
         public ActionResult GetQuiz(string title)
         {
-            var quiz = _context.Quizzes.Include(q => q.Questions).ThenInclude(q => q.MocksAnswer)
+            var quiz = _context
+                .Quizzes.Include(q => q.Questions)
+                .ThenInclude(q => q.MocksAnswers)
                 .Where(t => t.Title == title)
                 .FirstOrDefault();
 
@@ -54,58 +63,75 @@ namespace QuizApp.Server.Controllers
             return Ok(quiz);
         }
 
-
         [HttpPost("addquiz")]
-        public async Task<ActionResult> AddQuiz([FromBody] Quiz quiz)
+        public async Task<ActionResult> AddQuiz([FromBody] Quiz quizModel)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            // Skapa ett nytt Quiz-objekt och lägg till det i databasen 
-            var quizToAdd = new Models.Quiz
+            try
             {
-                UserId = userId,
-                Title = quiz.Title,
-                DateCreated = DateTime.Now,
-                MaxScore = quiz.Questions.Count * 100, // Antag att varje fråga är värd 100 poäng eftersom det inte finns någon poäng för varje fråga
-                GamesPlayed = 0,
-            };
-            _context.Quizzes.Add(quizToAdd);
-            _context.SaveChanges();
-
-            // Loopa igenom varje fråga i quiz och lägg till dem i databasen
-            foreach (var question in quiz.Questions)
-            {
-                var questionToAdd = new Question
+                // Create a new Quiz object and add it to the database
+                var quizToAdd = new Quiz
                 {
-                    QuizId = quizToAdd.Id,
-                    Questions = question.Questions,
-                    Answer = question.Answer,
-                    Media = question.Media,
-                    Time = question.Time,
-                    MocksAnswer = new List<Mock>()
+                    UserId = userId,
+                    Title = quizModel.Title,
+                    DateCreated = DateTime.UtcNow,
+                    MaxScore = quizModel.Questions.Count * 100, // Assuming each question is worth 100 points
+                    GamesPlayed = 0,
+                    Questions = new List<Question>() // Initialize the Questions collection
                 };
-                _context.Questions.Add(questionToAdd);
-                _context.SaveChanges();
 
-                // Loopa igenom varje MockAnswer för varje fråga och lägg till dem i databasen
-                foreach (var mock in question.MocksAnswer)
+                foreach (var questionModel in quizModel.Questions)
                 {
-                    var mockToAdd = new Mock
+                    var questionToAdd = new Question
                     {
-                        QuestionId = questionToAdd.Id,
-                        MockAnswer = mock.MockAnswer
+                        Questions = questionModel.Questions,
+                        Answer = questionModel.Answer,
+                        //Media = null,
+                        MultipleChoice = questionModel.MultipleChoice,
+                        QuizId = quizToAdd.Id, // Set QuizId for the question
+                        MocksAnswers = new List<Mock>()
                     };
-                    _context.Mocks.Add(mockToAdd);
+
+                    if (questionModel.Media != null && questionModel.Media.Hash != null)
+                    {
+                        // Fetch media based on the provided Hash
+                        var media = _context.Media.FirstOrDefault(m =>
+                            m.Hash == questionModel.Media.Hash
+                        );
+                        // Associate media with the question
+                        questionToAdd.Media = media;
+                    }
+
+                    // Add mock answers if it's a multiple choice question
+                    if (questionModel.MultipleChoice)
+                    {
+                        foreach (var mockAnswerModel in questionModel.MocksAnswers)
+                        {
+                            var mockToAdd = new Mock { MockAnswer = mockAnswerModel.MockAnswer };
+                            questionToAdd.MocksAnswers.Add(mockToAdd);
+                        }
+                    }
+
+                    quizToAdd.Questions.Add(questionToAdd);
                 }
+
+                _context.Quizzes.Add(quizToAdd);
+                await _context.SaveChangesAsync();
+
+                var quizView = QuizConverter.Convert(quizModel);
+
+                return Ok(quizView);
             }
-            _context.SaveChanges();
-
-            var quizView = QuizConverter.ConvertQuiz(quiz);
-
-            return Ok(quizView);
+            catch (Exception ex)
+            {
+                // Log the exception for debugging purposes
+                Console.WriteLine($"An error occurred while adding quiz: {ex.Message}");
+                return StatusCode(
+                    500,
+                    "An error occurred while adding quiz. Please try again later."
+                );
+            }
         }
-
     }
 }
-
-

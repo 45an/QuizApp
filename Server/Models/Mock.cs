@@ -7,6 +7,7 @@ namespace QuizApp.Server.Models
     {
         [Key]
         public int Id { get; set; }
+
         [ForeignKey("QuestionId")]
         public int QuestionId { get; set; }
         public virtual Question? Question { get; set; }

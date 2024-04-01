@@ -15,13 +15,16 @@ namespace QuizApp.Server.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IWebHostEnvironment _hostingEnvironment;
 
-        public ProfileController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IWebHostEnvironment hostingEnvironment)
+        public ProfileController(
+            ApplicationDbContext context,
+            UserManager<ApplicationUser> userManager,
+            IWebHostEnvironment hostingEnvironment
+        )
         {
             _context = context;
             _userManager = userManager;
             _hostingEnvironment = hostingEnvironment;
         }
-
 
         [HttpGet("mygames")]
         public async Task<IActionResult> GetUsersGame()
@@ -37,17 +40,19 @@ namespace QuizApp.Server.Controllers
             try
             {
                 var userId = _userManager.GetUserId(User); // Hämta användarens ID
-                var userQuizzes = await _context.Quizzes
-                    .Where(q => q.UserId == userId) // Filtrera quiz som är skapade av användaren
+                var userQuizzes = await _context
+                    .Quizzes.Where(q => q.UserId == userId) // Filtrera quiz som är skapade av användaren
                     .ToListAsync();
 
                 return Ok(userQuizzes);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"An error occurred while retrieving user created games: {ex.Message}"); // Returnera en 500 HTTP-statuskod om ett fel inträffade    
+                return StatusCode(
+                    500,
+                    $"An error occurred while retrieving user created games: {ex.Message}"
+                ); // Returnera en 500 HTTP-statuskod om ett fel inträffade
             }
         }
-
     }
 }
