@@ -30,7 +30,61 @@
         <button type="button" @onclick="() => video.Pause()">Pause</button> *@
     </Authorized>
     <NotAuthorized>
-        <h1>NOT SIGNED IN</h1>
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h1><strong>Welcome to Quiz App!</strong></h1>
+
+                    <p>
+                        Quiz App is a comprehensive Blazor application designed for interactive quiz management.<br>
+                        Users can effortlessly create, participate in, and share quizzes via unique links. <br>
+                        With a user-friendly interface, the platform allows for seamless navigation.
+                    </p>
+
+                    <h3><strong>Key Features:</strong></h3>
+
+                    <p>
+                        <strong>User Registration and Login:</strong><br>
+                        Create your Quiz App account or log in to keep track of your progress and save your scores.
+                    </p>
+
+                    <h3><strong>Quiz Management</strong></h3>
+
+                    <p>
+                        <strong>Quiz Creation:</strong><br>
+                        Effortlessly create quizzes tailored to your preferences.
+                    </p>
+
+                    <p>
+                        <strong>Quiz Participation and Sharing:</strong><br>
+                        Participate in quizzes and share them with others via unique links.
+                    </p>
+
+                    <p>
+                        <strong>Quiz Tracking:</strong><br>
+                        View a list of quizzes you've created and see who has answered them, along with their respective scores.
+                    </p>
+
+                    <p>
+                        <strong>Quiz Participation:</strong><br>
+                        Answer quizzes that you've been linked to and track your performance.
+                    </p>
+                </div>
+                <div class="col">
+                    <div class="container d-flex justify-content-center">
+                        <div class="d-flex flex-row flex-wrap flex-grow-1 gap-4 mg-0">
+                            <QuizCard quizSource="/images/quiz_placeholder.png" />
+                            <QuizCard quizSource="/images/quiz_placeholder.png" />
+                            <QuizCard quizSource="/images/quiz_placeholder.png" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    
+
+
         @* TODO: Add a guide to the game *@
     </NotAuthorized>
 </AuthorizeView>
