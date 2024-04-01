@@ -34,11 +34,11 @@ namespace QuizApp.Server.Controllers
         }
 
         [HttpGet("getMedia/{guid}")]
-        public async Task<IActionResult> GetMedia(Guid guid)
+        public async Task<IActionResult> GetMedia(Guid mediaGuid)
         {
             try
             {
-                var media = await _context.Media.FindAsync(guid);
+                var media = await _context.Media.FindAsync(mediaGuid);
 
                 if (media == null)
                     return NotFound(); // Om media inte hittades
@@ -121,7 +121,7 @@ namespace QuizApp.Server.Controllers
 
                 var newMedia = new Media
                 {
-                    Guid = Guid.NewGuid(),
+                    MediaGuid = Guid.NewGuid(),
                     Hash = hash,
                     Path = fullPath,
                     ContentType = file.ContentType,

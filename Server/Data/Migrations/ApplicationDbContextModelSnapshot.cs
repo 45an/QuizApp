@@ -405,11 +405,11 @@ namespace QuizApp.Server.Data.Migrations
                     b.Property<byte[]>("FileBytes")
                         .HasColumnType("varbinary(max)");
 
-                    b.Property<Guid>("Guid")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("Hash")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("MediaGuid")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Path")
                         .HasColumnType("nvarchar(max)");
@@ -457,9 +457,8 @@ namespace QuizApp.Server.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Media")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("MediaId")
+                        .HasColumnType("int");
 
                     b.Property<bool>("MultipleChoice")
                         .HasColumnType("bit");
@@ -475,6 +474,8 @@ namespace QuizApp.Server.Data.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("MediaId");
 
                     b.HasIndex("QuizId");
 
@@ -497,10 +498,6 @@ namespace QuizApp.Server.Data.Migrations
 
                     b.Property<int>("MaxScore")
                         .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -596,7 +593,7 @@ namespace QuizApp.Server.Data.Migrations
             modelBuilder.Entity("QuizApp.Server.Models.Mock", b =>
                 {
                     b.HasOne("QuizApp.Server.Models.Question", "Question")
-                        .WithMany("MocksAnswer")
+                        .WithMany("MocksAnswers")
                         .HasForeignKey("QuestionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -606,11 +603,17 @@ namespace QuizApp.Server.Data.Migrations
 
             modelBuilder.Entity("QuizApp.Server.Models.Question", b =>
                 {
+                    b.HasOne("QuizApp.Server.Models.Media", "Media")
+                        .WithMany()
+                        .HasForeignKey("MediaId");
+
                     b.HasOne("QuizApp.Server.Models.Quiz", "Quiz")
                         .WithMany("Questions")
                         .HasForeignKey("QuizId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Media");
 
                     b.Navigation("Quiz");
                 });
@@ -626,7 +629,7 @@ namespace QuizApp.Server.Data.Migrations
 
             modelBuilder.Entity("QuizApp.Server.Models.Question", b =>
                 {
-                    b.Navigation("MocksAnswer");
+                    b.Navigation("MocksAnswers");
                 });
 
             modelBuilder.Entity("QuizApp.Server.Models.Quiz", b =>

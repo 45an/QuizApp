@@ -6,7 +6,7 @@
         {
             var mediaView = new MediaView
             {
-                Guid = media.Guid,
+                Guid = media.MediaGuid,
                 Hash = media.Hash,
                 Path = media.Path,
                 ContentType = media.ContentType,

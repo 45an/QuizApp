@@ -44,7 +44,7 @@
                             <div class="d-flex flex-row w-100 gap-1 flex-grow-1">
                                 <div class="flex-grow w-100">
                                     <div class="form-group">
-                                        <input type="text" class="form-control" placeholder="Question" @bind="question.Question" required>
+                                        <input type="text" class="form-control" placeholder="Question" @bind="question.Questions" required>
                                     </div>
                                 </div>
                                 <div class="flex-grow w-100">
@@ -87,7 +87,7 @@
                         <div class="d-flex flex-row w-100 gap-1 flex-grow-1">
                             <div class="flex-grow w-100">
                                 <div class="form-group">
-                                    <input type="text" class="form-control" placeholder="Question" @bind="question.Question" required>
+                                    <input type="text" class="form-control" placeholder="Question" @bind="question.Questions" required>
                                 </div>
                             </div>
                             <div class="flex-grow w-100">
@@ -134,7 +134,7 @@
 
     class MediaModel
     {
-        public string? Guid { get; set; }
+        public Guid? MediaGuid { get; set; }
         public string? Hash { get; set; }
         public string? Path { get; set; }
         public string? ContentType { get; set; }
@@ -144,11 +144,11 @@
     class QuizQuestion
     {
         public int Index { get; set; }
-        public string Question { get; set; }
+        public string Questions { get; set; }
         public string Answer { get; set; }
+        public virtual MediaModel Media { get; set; }
         public IBrowserFile File { get; set; }
         public bool MultipleChoice { get; set; }
-        public virtual MediaModel Media { get; set; }
         public virtual List<MockModel> MocksAnswers { get; set; }
 
         public QuizQuestion()
@@ -185,8 +185,6 @@
             }
         }
     };
-
-    //MockModel Mock = new MockModel() { MockAnswer = new List<string> { "", "" } }; // Initialize with at least 2 empty answers
 
     string ErrorText = null;
 
@@ -238,37 +236,14 @@
 
         try
         {
-            var formData = new MultipartFormDataContent();
-            formData.Add(new StringContent(Quiz.Title), "Title");
+            var jsonContent = JsonConvert.SerializeObject(Quiz);
+            var content = new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json");
 
-            foreach (var question in Quiz.Questions)
-            {
-                if (question.File != null)
-                {
-                    formData.Add(new StringContent(question.Question), $"Questions[{question.Index}].Question");
-                    formData.Add(new StringContent(question.Answer), $"Questions[{question.Index}].Answer");
-
-                    // Add MediaModel properties to form data individually
-                    formData.Add(new StringContent(question.Media.Guid ?? ""), $"Questions[{question.Index}].Media.Guid");
-
-                    formData.Add(new StringContent(question.MultipleChoice.ToString()), $"Questions[{question.Index}].MultipleChoice");
-
-                    if (question.MultipleChoice)
-                    {
-                        // Add mock answers
-                        foreach (var mockAnswer in question.MocksAnswers)
-                        {
-                            formData.Add(new StringContent(mockAnswer.MockAnswer), $"Questions[{question.Index}].MocksAnswer");
-                        }
-                    }
-                }
-            }
-
-            var response = await httpClient.PostAsync("/api/Quiz/addquiz", formData);
+            var response = await httpClient.PostAsync("/api/Quiz/addquiz", content);
             response.EnsureSuccessStatusCode();
 
             // Handle success response
-            // For example, you can redirect to another page
+            // TODO: redirect to quiz page
         }
         catch (Exception ex)
         {
@@ -328,22 +303,17 @@
             var json = await response.Content.ReadAsStringAsync();
             Console.WriteLine("JSON Response: " + json);
 
-            dynamic media = JObject.Parse(json);
-            if (media != null && media.path != null)
+            var media = JsonConvert.DeserializeObject<MediaModel>(json);
+            if (media != null && media.Path != null)
             {
-                Console.WriteLine("questionIndex: " + questionIndex);
-                string _path = media.path;
-                string _contentType = media.contentType;
-                string _guid = media.guid;
-
-                // Add or update the URL in the dictionary
-                question.Media.Path = _path;
-                question.Media.ContentType = _contentType;
-                question.Media.Guid = _guid;
+                question.Media.MediaGuid = media.MediaGuid;
+                question.Media.Hash = media.Hash;
+                question.Media.Path = media.Path;
+                question.Media.ContentType = media.ContentType;
             }
             else
             {
-                ErrorText = "Failed to deserialize JSON or missing image path.";
+                ErrorText = "Failed to deserialize JSON or missing file path.";
             }
         }
         catch (Exception ex)

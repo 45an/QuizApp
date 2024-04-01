@@ -71,10 +71,9 @@ namespace QuizApp.Server.Controllers
             try
             {
                 // Create a new Quiz object and add it to the database
-                var quizToAdd = new Models.Quiz
+                var quizToAdd = new Quiz
                 {
                     UserId = userId,
-                    //Name = quizModel.Title, // Set Name property
                     Title = quizModel.Title,
                     DateCreated = DateTime.Now,
                     MaxScore = quizModel.Questions.Count * 100, // Assuming each question is worth 100 points
@@ -89,21 +88,20 @@ namespace QuizApp.Server.Controllers
                         Questions = questionModel.Questions,
                         Answer = questionModel.Answer,
                         Media = questionModel.Media,
-                        // Time = questionModel.Time,
                         MultipleChoice = questionModel.MultipleChoice,
                         QuizId = quizToAdd.Id, // Set QuizId for the question
                         MocksAnswers = new List<Mock>()
                     };
 
-                    Guid mediaGuid = questionModel.Media.Guid;
-                    // Fetch media based on the provided GUID
-                    var media = await _context.Media.FindAsync(mediaGuid);
-                    // Associate media with the question
-                    questionToAdd.Media = new Media
+                    if (questionModel.Media.Path != null)
                     {
-                        Path = media.Path,
-                        ContentType = media.ContentType
-                    };
+                        // Fetch media based on the provided GUID
+                        var media = await _context.Media.FindAsync(
+                            Guid.Parse(questionModel.Media.MediaGuid.ToString())
+                        );
+                        // Associate media with the question
+                        questionToAdd.Media = media;
+                    }
 
                     // Add mock answers if it's a multiple choice question
                     if (questionModel.MultipleChoice)
@@ -121,9 +119,9 @@ namespace QuizApp.Server.Controllers
                 _context.Quizzes.Add(quizToAdd);
                 await _context.SaveChangesAsync();
 
-                //var quizView = QuizConverter.ConvertQuiz(quizModel);
+                var quizView = QuizConverter.Convert(quizModel);
 
-                return Ok(quizToAdd);
+                return Ok(quizView);
             }
             catch (Exception ex)
             {
