@@ -2,14 +2,16 @@
 {
     public class GameConverter
     {
-        public static GameView ConvertGame(Game game)
+        public static GameView Convert(Game game)
         {
-            var gameView = new GameView();
+            var gameView = new GameView
+            {
+                Id = game.Id,
+                QuizId = game.QuizId,
+                UserId = game.UserId,
+                Score = game.Score
+            };
 
-            gameView.Id = game.Id;
-            gameView.QuizId = game.QuizId;
-            gameView.UserId = game.UserId;
-            gameView.Score = game.Score;
             return gameView;
         }
     }

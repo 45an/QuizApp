@@ -24,20 +24,24 @@ namespace QuizApp.Server.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _hostingEnvironment;
 
-        public GameController(UserManager<ApplicationUser> userManager, ApplicationDbContext context, IWebHostEnvironment hostingEnvironment)
+        public GameController(
+            UserManager<ApplicationUser> userManager,
+            ApplicationDbContext context,
+            IWebHostEnvironment hostingEnvironment
+        )
         {
             _userManager = userManager;
             _context = context;
             _hostingEnvironment = hostingEnvironment;
         }
 
-        [HttpPost("savegame")] 
+        [HttpPost("savegame")]
         public IActionResult SaveGame([FromBody] SaveGameRequest request)
         {
-            var quiz = _context.Quizzes
-             .Include(q => q.User)
-             .Where(x => x.Title == request.Title)
-             .FirstOrDefault();
+            var quiz = _context
+                .Quizzes.Include(q => q.User)
+                .Where(x => x.Title == request.Title)
+                .FirstOrDefault();
 
             if (quiz == null)
             {
@@ -50,17 +54,14 @@ namespace QuizApp.Server.Controllers
                 UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value,
                 Score = request.Score,
             };
-           
+
             _context.Games.Add(game);
 
             quiz.GamesPlayed += 1;
 
-             _context.SaveChanges();
+            _context.SaveChanges();
 
             return Ok();
         }
-
-
-
     }
 }

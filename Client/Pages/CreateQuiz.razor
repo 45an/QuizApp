@@ -4,7 +4,11 @@
 @inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
 
-<h1>Create Quiz</h1>
+@if (Quiz.Title != null && Quiz.Title.Length > 0) {
+    <h1>Create Quiz - @Quiz.Title</h1>
+} else {
+    <h1>Create Quiz</h1>
+}
 <hr />
 
 @if (!string.IsNullOrEmpty(ErrorText))
@@ -26,48 +30,91 @@
         {
             <div class="question d-flex flex-column">
                 <h2 class="p-2 mb-0">Question @(question.Index + 1)</h2>
-                <div class="d-flex flex-row flex-wrap flex-grow-1 m-0 p-2 gap-2">
-                    <div class="d-flex flex-column w-55 gap-1 flex-grow-1">
-                        <div class="flex-grow">
-                            <div class="form-group">
-                                <input type="text" class="form-control" placeholder="Question" @bind="question.Question" required>
-                            </div>
-                        </div>
-                        <div class="flex-grow">
-                            <div class="form-group">
-                                <input type="text" class="form-control" placeholder="Answer" @bind="question.Answer" required>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group d-flex flex-wrap w-35 flex-grow-1">
-                        <FileDropZone class="drop-zone w-100">
-                            <InputFile name="file" class="form-control" id=@($"media{question.Index}") OnChange="@(async (InputFileChangeEventArgs args) => await OnInputFileChange(args, question.Index))" accept=".jpg,.jpeg,.png,.gif,.mp4,.mov" maxfilesize="134217728" />
-                        </FileDropZone>
-                    </div>
+
+                <div class="form-check form-switch d-flex flex-row m-0 p-2 gap-2 justify-content-start align-items-center">
+                    <input class="form-check-input m-0" type="checkbox" id=@($"multipleChoice{question.Index}") @bind="@question.MultipleChoice" />
+                    <label class="form-check-label" for=@($"multipleChoice{question.Index}")>Multiple Choice</label>
                 </div>
+
                 @if (question.MultipleChoice)
                 {
-                    <div class="flex-grow">
-                        <div class="form-group">
-                            <input type="text" class="form-control" placeholder="Mock Answer 1" @bind="question.MocksAnswer[0].MockAnswer" required>
+                    <div class="d-flex flex-column flex-wrap flex-grow-1 m-0 p-2 gap-2">
+                        @if (question.MocksAnswers != null)
+                        {
+                            <div class="d-flex flex-row w-100 gap-1 flex-grow-1">
+                                <div class="flex-grow w-100">
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" placeholder="Question" @bind="question.Question" required>
+                                    </div>
+                                </div>
+                                <div class="flex-grow w-100">
+                                    <div class="form-group">
+                                        <select class="form-select" @bind="question.Answer" required>
+                                            <option value="">Select Correct Answer</option>
+                                            @foreach (var mock in question.MocksAnswers)
+                                            {
+                                                if (mock.MockAnswer != "") {
+                                                    <option value="@mock.MockAnswer">@mock.MockAnswer</option>
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex flex-row w-100 flex-grow-1 gap-1 flex-wrap">
+                                @foreach (var mock in question.MocksAnswers)
+                                {
+                                    <div class="flex-grow-1 w-45">
+                                        <div class="form-group">
+                                            <input type="text" class="form-control" placeholder="Mock Answer" @bind="mock.MockAnswer" required>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        <div class="form-group d-flex flex-wrap w-35 flex-grow-1">
+                            <FileDropZone class="drop-zone w-100 m-0">
+                                <InputFile name="file" class="form-control" id=@($"media{question.Index}") OnChange="@(async (InputFileChangeEventArgs args) => await OnInputFileChange(args, question.Index))" accept=".jpg,.jpeg,.png,.gif,.mp4,.mov" maxfilesize="134217728" />
+                            </FileDropZone>
                         </div>
-                        <div class="form-group">
-                            <input type="text" class="form-control" placeholder="Mock Answer 2" @bind="question.MocksAnswer[1].MockAnswer" required>
+
+                    <button type="button" class="btn btn-primary" @onclick="() => AddMockAnswer(question)">Add Multiple Choice Answer</button>
+                    <button type="button" class="btn btn-danger" @onclick="() => RemoveMockAnswer(question)">Remove Multiple Choice Answer</button>
+
+                    </div>
+                } else {
+                    <div class="d-flex flex-column flex-wrap flex-grow-1 m-0 p-2 gap-2">
+                        <div class="d-flex flex-row w-100 gap-1 flex-grow-1">
+                            <div class="flex-grow w-100">
+                                <div class="form-group">
+                                    <input type="text" class="form-control" placeholder="Question" @bind="question.Question" required>
+                                </div>
+                            </div>
+                            <div class="flex-grow w-100">
+                                <div class="form-group">
+                                    <input type="text" class="form-control" placeholder="Answer" @bind="question.Answer" required>
+                                </div>
+                            </div>
                         </div>
-                        <!-- Add more mock answer fields as needed -->
+                        <div class="form-group d-flex flex-wrap w-35 flex-grow-1">
+                            <FileDropZone class="drop-zone w-100 m-0">
+                                <InputFile name="file" class="form-control" id=@($"media{question.Index}") OnChange="@(async (InputFileChangeEventArgs args) => await OnInputFileChange(args, question.Index))" accept=".jpg,.jpeg,.png,.gif,.mp4,.mov" maxfilesize="134217728" />
+                            </FileDropZone>
+                        </div>
                     </div>
                 }
-                @if (!string.IsNullOrEmpty(question.ImageUrl) && !string.IsNullOrEmpty(question.ContentType))
+
+                @if (!string.IsNullOrEmpty(question.Media.Path) && !string.IsNullOrEmpty(question.Media.ContentType))
                 {
-                    <div class="position-relative w-auto text-center border-dark border-4 p-1">
-                        @if (question.ContentType.Contains("image"))
+                    <div class="position-relative w-auto text-center border-dark border-4 p-2">
+                        @if (question.Media.ContentType.Contains("image"))
                         {
-                            <img src="@question.ImageUrl" class="w-100" style="max-width:inherit;" />
+                            <img src="@question.Media.Path" class="w-100" style="max-width:inherit;" />
                         }
-                        @if (question.ContentType.Contains("video"))
+                        @if (question.Media.ContentType.Contains("video"))
                         {
-                            <VidazorVideo controls class="img-fluid w100" style="max-width:inherit;" type="@question.ContentType">
-                                <source src="@question.ImageUrl" class="w-100">
+                            <VidazorVideo controls class="img-fluid w100" style="max-width:inherit;" type="@question.Media.ContentType">
+                                <source src="@question.Media.Path" class="w-100">
                             </VidazorVideo>
                         }
                         <button type="button" class="btn btn-secondary position-absolute top-0 end-0 invisible hover" @onclick="() => RemoveImage(question)">X</button>
@@ -83,98 +130,40 @@
     </form>
 </div>
 
-@* <div class="container">
-    <form id="quiz-form" @onsubmit="CreateQuizPost">
-        <div class="carousel-container">
-            <div id="QuizFormCarousel" class="carousel slide" data-bs-ride="carousel">
-                <div class="carousel-inner">
-                    @foreach (var question in Quiz.Questions)
-                    {
-                        <div class="carousel-item @(question.Index == 0 ? "active" : "") question-@(question.Index)">
-                            <div class="question d-flex flex-column">
-                                <h2 class="p-2 mb-0">Question @(question.Index + 1)</h2>
-                                <div class="d-flex flex-row flex-wrap flex-grow-1 m-0 p-2 gap-2">
-                                    <div class="d-flex flex-column w-55 gap-1 flex-grow-1">
-                                        <div class="flex-grow">
-                                            <div class="form-group">
-                                                <input type="text" class="form-control" placeholder="Question" @bind="question.Question" required>
-                                            </div>
-                                        </div>
-                                        <div class="flex-grow">
-                                            <div class="form-group">
-                                                <input type="text" class="form-control" placeholder="Answer" @bind="question.Answer" required>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="form-group d-flex flex-wrap w-35 flex-grow-1">
-                                        <FileDropZone class="drop-zone w-100">
-                                            <InputFile class="form-control" id=@($"media{question.Index}") OnChange="@(async (InputFileChangeEventArgs args) => await OnInputFileChange(args, question.Index))" accept=".jpg,.jpeg,.png,.gif,.mp4,.mov" maxfilesize="134217728" />
-                                        </FileDropZone>
-                                    </div>
-                                </div>
-                                @if (!string.IsNullOrEmpty(question.ImageUrl) && !string.IsNullOrEmpty(question.ContentType))
-                                {
-                                    <div class="position-relative w-auto text-center border-dark border-4 p-1">
-                                        @if (question.ContentType.Contains("image"))
-                                        {
-                                            <img src="@question.ImageUrl" class="w-100" style="max-width:inherit;" />
-                                        }
-                                        @if (question.ContentType.Contains("video"))
-                                        {
-                                            <VidazorVideo controls class="img-fluid w100" style="max-width:inherit;" type="@question.ContentType">
-                                                <source src="@question.ImageUrl" class="w-100">
-                                            </VidazorVideo>
-                                        }
-                                        <button type="button" class="btn btn-secondary position-absolute top-0 end-0 invisible hover" @onclick="() => RemoveImage(question)">X</button>
-                                    </div>
-                                }
-                            </div>
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
-
-        <div class="d-flex flex-row gap-2 p-4">
-            <button class="bg-black d-flex" type="button" data-bs-target="#QuizFormCarousel" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Previous</span>
-            </button>
-            <ol class="carousel-indicators  border-1 border-black position-relative bg-black list-unstyled m-0 p-1 flex-grow-1">
-                @foreach (var question in Quiz.Questions)
-                {
-                    <li data-bs-target="#QuizFormCarousel" data-bs-slide-to="@question.Index" class="w-3 h-1 m-0 p-1 @(question.Index == 0 ? "active" : "")"></li>
-                }
-            </ol>
-            <button class="bg-black d-flex" type="button" data-bs-target="#QuizFormCarousel" data-bs-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Next</span>
-            </button>
-        </div>
-
-        <br />
-
-        <button type="button" class="btn btn-primary" @onclick="AddQuestion">Add Another Question</button>
-        <button type="button" class="btn btn-danger" @onclick="RemoveQuestion">Remove Question</button>
-        <hr />
-        <button type="submit" class="btn btn-success">Create Quiz</button>
-    </form>
-</div>*@
-
 @code {
+
+    class MediaModel
+    {
+        public string? Guid { get; set; }
+        public string? Hash { get; set; }
+        public string? Path { get; set; }
+        public string? ContentType { get; set; }
+        public byte[]? FileBytes { get; set; }
+    }
+
     class QuizQuestion
     {
         public int Index { get; set; }
         public string Question { get; set; }
         public string Answer { get; set; }
-        public string ImageUrl { get; set; }
         public IBrowserFile File { get; set; }
-        public string ContentType { get; set; }
         public bool MultipleChoice { get; set; }
-        public virtual List<Mock>? MocksAnswer { get; set; }
+        public virtual MediaModel Media { get; set; }
+        public virtual List<MockModel> MocksAnswers { get; set; }
+
+        public QuizQuestion()
+        {
+            // Initialize MocksAnswers with two MockModel instances, each with an empty MockAnswer string
+            MocksAnswers = new List<MockModel>
+            {
+                new MockModel { MockAnswer = "" },
+                new MockModel { MockAnswer = "" }
+            };
+            Media = new MediaModel();
+        }
     }
 
-    class Mock {
+    class MockModel {
         public string? MockAnswer { get; set; }
     }
 
@@ -184,7 +173,21 @@
         public List<QuizQuestion> Questions { get; set; } = new List<QuizQuestion>();
     }
 
-    QuizModel Quiz = new QuizModel() { Questions = { new QuizQuestion { Index = 0 } } }; // Start with one blank question
+    // Initialize Quiz
+    QuizModel Quiz = new QuizModel()
+    {
+        Questions =
+        {
+            new QuizQuestion
+            {
+                Index = 0,
+                MultipleChoice = false,
+            }
+        }
+    };
+
+    //MockModel Mock = new MockModel() { MockAnswer = new List<string> { "", "" } }; // Initialize with at least 2 empty answers
+
     string ErrorText = null;
 
     private void AddQuestion()
@@ -199,9 +202,30 @@
             Quiz.Questions.RemoveAt(Quiz.Questions.Count - 1);
     }
 
+    private void AddMockAnswer(QuizQuestion question)
+    {
+        if (question.MocksAnswers == null)
+        {
+            question.MocksAnswers = new List<MockModel>();
+        }
+
+        if (question.MocksAnswers.Count < 4) // Check if the maximum limit is reached
+        {
+            question.MocksAnswers.Add(new MockModel { MockAnswer =  ""  }); // Add an empty mock answer
+        }
+    }
+
+    private void RemoveMockAnswer(QuizQuestion question)
+    {
+        if (question.MocksAnswers != null && question.MocksAnswers.Count > 2)
+        {
+            question.MocksAnswers.RemoveAt(question.MocksAnswers.Count - 1); // Remove the last mock answer
+        }
+    }
+
     private void RemoveImage(QuizQuestion question)
     {
-        question.ImageUrl = null;
+        question.Media.Path = null;
         question.File = null;
     }
 
@@ -223,13 +247,16 @@
                 {
                     formData.Add(new StringContent(question.Question), $"Questions[{question.Index}].Question");
                     formData.Add(new StringContent(question.Answer), $"Questions[{question.Index}].Answer");
-                    formData.Add(new StreamContent(question.File.OpenReadStream(maxAllowedSizeInBytes)), $"Questions[{question.Index}].Media", question.File.Name);
+
+                    // Add MediaModel properties to form data individually
+                    formData.Add(new StringContent(question.Media.Guid ?? ""), $"Questions[{question.Index}].Media.Guid");
+
                     formData.Add(new StringContent(question.MultipleChoice.ToString()), $"Questions[{question.Index}].MultipleChoice");
 
                     if (question.MultipleChoice)
                     {
                         // Add mock answers
-                        foreach (var mockAnswer in question.MocksAnswer)
+                        foreach (var mockAnswer in question.MocksAnswers)
                         {
                             formData.Add(new StringContent(mockAnswer.MockAnswer), $"Questions[{question.Index}].MocksAnswer");
                         }
@@ -305,12 +332,14 @@
             if (media != null && media.path != null)
             {
                 Console.WriteLine("questionIndex: " + questionIndex);
-                string path = media.path;
-                string contentType = media.contentType;
+                string _path = media.path;
+                string _contentType = media.contentType;
+                string _guid = media.guid;
 
                 // Add or update the URL in the dictionary
-                question.ImageUrl = path;
-                question.ContentType = contentType;
+                question.Media.Path = _path;
+                question.Media.ContentType = _contentType;
+                question.Media.Guid = _guid;
             }
             else
             {

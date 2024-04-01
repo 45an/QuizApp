@@ -1,7 +1,10 @@
-﻿using System.Security.Claims;
+﻿using System.Net.Http;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using QuizApp.Server.Data;
 using QuizApp.Server.Models;
 using QuizApp.Server.Models.ViewModels;
@@ -36,7 +39,7 @@ namespace QuizApp.Server.Controllers
 
             foreach (var quiz in quizzes)
             {
-                quizzesView.Add(QuizConverter.ConvertQuiz(quiz));
+                quizzesView.Add(QuizConverter.Convert(quiz));
             }
 
             return quizzesView;
@@ -47,7 +50,7 @@ namespace QuizApp.Server.Controllers
         {
             var quiz = _context
                 .Quizzes.Include(q => q.Questions)
-                .ThenInclude(q => q.MocksAnswer)
+                .ThenInclude(q => q.MocksAnswers)
                 .Where(t => t.Title == title)
                 .FirstOrDefault();
 
@@ -65,53 +68,72 @@ namespace QuizApp.Server.Controllers
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            // Create a new Quiz object and add it to the database
-            var quizToAdd = new Models.Quiz
+            try
             {
-                UserId = userId,
-                Title = quizModel.Title,
-                DateCreated = DateTime.Now,
-                MaxScore = quizModel.Questions.Count * 100, // Assume each question is worth 100 points since there's no point for each question
-                GamesPlayed = 0,
-            };
-            _context.Quizzes.Add(quizToAdd);
-            await _context.SaveChangesAsync();
-
-            // Loop through each question in the quiz and add them to the database
-            foreach (var questionModel in quizModel.Questions)
-            {
-                var questionToAdd = new Question
+                // Create a new Quiz object and add it to the database
+                var quizToAdd = new Models.Quiz
                 {
-                    QuizId = quizToAdd.Id,
-                    Questions = questionModel.Questions,
-                    Answer = questionModel.Answer,
-                    Media = questionModel.Media,
-                    Time = questionModel.Time,
-                    MultipleChoice = questionModel.MultipleChoice,
-                    MocksAnswer = new List<Mock>()
+                    UserId = userId,
+                    //Name = quizModel.Title, // Set Name property
+                    Title = quizModel.Title,
+                    DateCreated = DateTime.Now,
+                    MaxScore = quizModel.Questions.Count * 100, // Assuming each question is worth 100 points
+                    GamesPlayed = 0,
+                    Questions = new List<Question>() // Initialize the Questions collection
                 };
-                _context.Questions.Add(questionToAdd);
+
+                foreach (var questionModel in quizModel.Questions)
+                {
+                    var questionToAdd = new Question
+                    {
+                        Questions = questionModel.Questions,
+                        Answer = questionModel.Answer,
+                        Media = questionModel.Media,
+                        // Time = questionModel.Time,
+                        MultipleChoice = questionModel.MultipleChoice,
+                        QuizId = quizToAdd.Id, // Set QuizId for the question
+                        MocksAnswers = new List<Mock>()
+                    };
+
+                    Guid mediaGuid = questionModel.Media.Guid;
+                    // Fetch media based on the provided GUID
+                    var media = await _context.Media.FindAsync(mediaGuid);
+                    // Associate media with the question
+                    questionToAdd.Media = new Media
+                    {
+                        Path = media.Path,
+                        ContentType = media.ContentType
+                    };
+
+                    // Add mock answers if it's a multiple choice question
+                    if (questionModel.MultipleChoice)
+                    {
+                        foreach (var mockAnswerModel in questionModel.MocksAnswers)
+                        {
+                            var mockToAdd = new Mock { MockAnswer = mockAnswerModel.MockAnswer };
+                            questionToAdd.MocksAnswers.Add(mockToAdd);
+                        }
+                    }
+
+                    quizToAdd.Questions.Add(questionToAdd);
+                }
+
+                _context.Quizzes.Add(quizToAdd);
                 await _context.SaveChangesAsync();
 
-                // Add mock answers if it's a multiple choice question
-                if (questionModel.MultipleChoice)
-                {
-                    foreach (var mockAnswerModel in questionModel.MocksAnswer)
-                    {
-                        var mockToAdd = new Mock
-                        {
-                            QuestionId = questionToAdd.Id,
-                            MockAnswer = mockAnswerModel.MockAnswer
-                        };
-                        _context.Mocks.Add(mockToAdd);
-                    }
-                    await _context.SaveChangesAsync();
-                }
+                //var quizView = QuizConverter.ConvertQuiz(quizModel);
+
+                return Ok(quizToAdd);
             }
-
-            var quizView = QuizConverter.ConvertQuiz(quizModel);
-
-            return Ok(quizView);
+            catch (Exception ex)
+            {
+                // Log the exception for debugging purposes
+                Console.WriteLine($"An error occurred while adding quiz: {ex.Message}");
+                return StatusCode(
+                    500,
+                    "An error occurred while adding quiz. Please try again later."
+                );
+            }
         }
     }
 }

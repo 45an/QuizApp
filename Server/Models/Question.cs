@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace QuizApp.Server.Models
 {
@@ -11,15 +11,17 @@ namespace QuizApp.Server.Models
         [ForeignKey("Quiz")]
         public int QuizId { get; set; }
         public Quiz? Quiz { get; set; }
+
         [Required]
         public string? Questions { get; set; }
+
         [Required]
         public string? Answer { get; set; }
-        [Required]
-        public string? Media { get; set; }
+        public virtual Media? Media { get; set; }
+
         [Required]
         public int Time { get; set; } = 0;
         public bool MultipleChoice { get; set; }
-        public virtual List<Mock>? MocksAnswer { get; set; }
+        public virtual List<Mock>? MocksAnswers { get; set; }
     }
 }

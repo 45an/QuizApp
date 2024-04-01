@@ -33,7 +33,7 @@ namespace QuizApp.Server.Controllers
             _hostingEnvironment = hostingEnvironment;
         }
 
-        [HttpGet("{guid}")]
+        [HttpGet("getMedia/{guid}")]
         public async Task<IActionResult> GetMedia(Guid guid)
         {
             try
