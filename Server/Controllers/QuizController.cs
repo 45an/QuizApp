@@ -31,9 +31,9 @@ namespace QuizApp.Server.Controllers
         }
 
         [HttpGet("getallquizzes")]
-        public List<QuizView> GetAllQuizzes()
+        public IActionResult GetAllQuizzes()
         {
-            var quizzes = _context.Quizzes.ToList();
+            var quizzes = _context.Quizzes.Include(q => q.Media).ToList();
 
             List<QuizView> quizzesView = new List<QuizView>();
 
@@ -42,7 +42,7 @@ namespace QuizApp.Server.Controllers
                 quizzesView.Add(QuizConverter.Convert(quiz));
             }
 
-            return quizzesView;
+            return Ok(quizzesView);
         }
 
         [HttpGet("getquiz/{title}")]
@@ -75,11 +75,20 @@ namespace QuizApp.Server.Controllers
                 {
                     UserId = userId,
                     Title = quizModel.Title,
+                    //Media = quizModel.Media,
                     DateCreated = DateTime.UtcNow,
                     MaxScore = quizModel.Questions.Count * 100, // Assuming each question is worth 100 points
                     GamesPlayed = 0,
                     Questions = new List<Question>() // Initialize the Questions collection
                 };
+
+                if (quizModel.Media != null && quizModel.Media.Hash != null)
+                {
+                    // Fetch media based on the provided Hash
+                    var media = _context.Media.FirstOrDefault(m => m.Hash == quizModel.Media.Hash);
+                    // Associate media with the quiz
+                    quizToAdd.Media = media;
+                }
 
                 foreach (var questionModel in quizModel.Questions)
                 {
@@ -90,17 +99,17 @@ namespace QuizApp.Server.Controllers
                         //Media = null,
                         MultipleChoice = questionModel.MultipleChoice,
                         QuizId = quizToAdd.Id, // Set QuizId for the question
-                        MocksAnswers = new List<Mock>()
+                        MocksAnswers = questionModel.MocksAnswers
                     };
 
                     if (questionModel.Media != null && questionModel.Media.Hash != null)
                     {
                         // Fetch media based on the provided Hash
-                        var media = _context.Media.FirstOrDefault(m =>
+                        var mediaQuestion = _context.Media.FirstOrDefault(m =>
                             m.Hash == questionModel.Media.Hash
                         );
                         // Associate media with the question
-                        questionToAdd.Media = media;
+                        questionToAdd.Media = mediaQuestion;
                     }
 
                     // Add mock answers if it's a multiple choice question
@@ -108,7 +117,11 @@ namespace QuizApp.Server.Controllers
                     {
                         foreach (var mockAnswerModel in questionModel.MocksAnswers)
                         {
-                            var mockToAdd = new Mock { MockAnswer = mockAnswerModel.MockAnswer };
+                            var mockToAdd = new Mock 
+                            { 
+                                QuestionId = questionModel.Id,
+                                MockAnswer = mockAnswerModel.MockAnswer 
+                            };
                             questionToAdd.MocksAnswers.Add(mockToAdd);
                         }
                     }

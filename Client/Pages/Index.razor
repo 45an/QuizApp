@@ -1,9 +1,11 @@
-﻿@using Microsoft.AspNetCore.Components.Authorization
+﻿@page "/"
+
+@using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
-@page "/"
 
-<PageTitle>Index</PageTitle>
+@inject HttpClient httpClient
 
+<PageTitle>Home</PageTitle>
 
 <AuthorizeView>
     <Authorized>
@@ -11,28 +13,42 @@
 
         <div class="container">
             <div class="d-flex flex-row flex-wrap flex-grow-1 gap-4 mg-0">
-                    <QuizCard quizSource="/images/quiz_placeholder.png" />
-                    <QuizCard quizSource="/images/quiz_placeholder.png" />
-                    <QuizCard quizSource="/images/quiz_placeholder.png" />
-                    <QuizCard quizSource="/images/quiz_placeholder.png" />
-                    <QuizCard quizSource="/images/quiz_placeholder.png" />
-                    <QuizCard quizSource="/images/quiz_placeholder.png" />
+            @foreach (var quiz in quizModels)
+            {
+                <div class="card flex-row w-45 p-0 m-0">
+
+                    @if (quiz.Media != null && !string.IsNullOrEmpty(quiz.Media.Path) &&
+                    !string.IsNullOrEmpty(quiz.Media.ContentType))
+                    {
+                        @if (quiz.Media.ContentType.Contains("image"))
+                        {
+                            <img src="@quiz.Media.Path" class="w-100" style="max-width:inherit;" />
+                        }
+                        @if (quiz.Media.ContentType.Contains("video"))
+                        {
+                            <VidazorVideo controls class="img-fluid w-100" style="max-width:inherit;"
+                                type="@quiz.Media.ContentType">
+                                <source src="@quiz.Media.Path" class="w-100">
+                            </VidazorVideo>
+                        }
+                    }
+                    <div class="card-body">
+                        <h5 class="card-title">@quiz.Title</h5>
+                        <p class="card-text">Date Created: @quiz.DateCreated.ToShortDateString()</p>
+                        <p class="card-text">Max Score: @quiz.MaxScore</p>
+                        <p class="card-text">Games Played: @quiz.GamesPlayed</p>
+                        <!-- Add more details as needed -->
+                        <a href="/quiz/@quiz.Id" class="btn btn-primary">Take Quiz</a>
+                    </div>
+                </div>
+            }
             </div>
-        </div>
-
-        @* <VidazorVideo @ref="video"
-        class="w-100" style="max-width:800px;"
-        autoplay="true">
-        <source src="/videos/phone.mp4"  />
-        </VidazorVideo> *@
-
-        @*<button type="button" @onclick="() => video.Play()">Play</button>
-        <button type="button" @onclick="() => video.Pause()">Pause</button> *@
+        </div
     </Authorized>
     <NotAuthorized>
         <div class="container">
-            <div class="row align-items-center">
-                <div class="col">
+            <div class=" d-flex flex-row flex-wrap align-items-center">
+                <div class="col w-100 pt-4">
                     <h1><strong>Welcome to Quiz App!</strong></h1>
 
                     <p>
@@ -70,26 +86,74 @@
                         Answer quizzes that you've been linked to and track your performance.
                     </p>
                 </div>
-                <div class="col">
+                <div class="d-flex flex-col">
                     <div class="container d-flex justify-content-center">
                         <div class="d-flex flex-row flex-wrap flex-grow-1 gap-4 mg-0">
-                            <QuizCard quizSource="/images/quiz_placeholder.png" />
-                            <QuizCard quizSource="/images/quiz_placeholder.png" />
-                            <QuizCard quizSource="/images/quiz_placeholder.png" />
+                            <QuizCard quizTemplate=@true />
+                            <QuizCard quizTemplate=@true />
+                            <QuizCard quizTemplate=@true />
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-    
-
-
-        @* TODO: Add a guide to the game *@
     </NotAuthorized>
 </AuthorizeView>
 
 
 @code {
-    VidazorVideo video;
+    public class QuizModel
+    {
+        public int Id { get; set; }
+        public string? Title { get; set; }
+        public MediaModel? Media { get; set; }
+        public DateTime DateCreated { get; set; }
+        public int MaxScore { get; set; }
+        public int GamesPlayed { get; set; }
+        public List<QuestionModel>? Questions { get; set; } = new List<QuestionModel>();
+    }
+
+    public class QuestionModel
+    {
+        public int Id { get; set; }
+        public int QuizId { get; set; }
+        public string? Questions { get; set; }
+        public string? Answer { get; set; }
+        public MediaModel? Media { get; set; }
+        public int Time { get; set; }
+        public bool MultipleChoice { get; set; }
+        public List<MockModel>? MocksAnswer { get; set; } = new List<MockModel>();
+    }
+
+    public class MediaModel
+    {
+        public Guid? MediaGuid { get; set; }
+        public string? Hash { get; set; }
+        public string? Path { get; set; }
+        public string? ContentType { get; set; }
+        public byte[]? FileBytes { get; set; }
+    }
+
+    public class MockModel
+    {
+        public int Id { get; set; }
+        public int QuestionId { get; set; }
+        public string? MockAnswer { get; set; }
+    }
+
+    private List<QuizModel> quizModels = new List<QuizModel>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await httpClient.GetAsync("api/quiz/getallquizzes");
+        if (response.IsSuccessStatusCode)
+        {
+            var content = await response.Content.ReadAsStringAsync();
+            quizModels = JsonConvert.DeserializeObject<List<QuizModel>>(content);
+        }
+        else
+        {
+            // Handle error
+        }
+    }
 }

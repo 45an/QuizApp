@@ -1,17 +1,27 @@
 ﻿<div class="card flex-row w-45 p-0 m-0">
-    <img
-        @* src="@quizSource"  *@
-        srcset="https://picsum.photos/200/200"
-        class="w-10 h-10 ratio-1x1" />
+        @if (quizTemplate) {
+        <img
+            src="https://picsum.photos/200/200"
+            class="w-10 h-10 ratio-1x1" />
+        }
     <div class="card-body">
-        <h5 class="card-title">Quiz of the day</h5>
-        <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
-            Nulla ac blandit lorem. Donec viverra tellus non arcu consectetur, vel mattis nunc vehicula.</p>
-        <a href="/quiz/" class="btn btn-primary">Take Quiz</a>
+        @if (quizTemplate) {
+            <h5 class="card-title">Quiz of the day</h5>
+            <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                Nulla ac blandit lorem. Donec viverra tellus non arcu consectetur, vel mattis nunc vehicula.</p>
+            <a href="/" class="btn btn-primary">Template</a>
+        } else {
+            <h5 class="card-title">Real Quiz Title</h5>
+            <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+            <a href="/quiz/{id}" class="btn btn-primary">Take Quiz</a>
+        }
     </div>
 </div>
 
 @code {
+    //[Parameter]
+    //public QuizModel quizModel { get; set; }
+
     [Parameter]
-    public string? quizSource { get; set; }
+    public bool quizTemplate { get; set; }
 }

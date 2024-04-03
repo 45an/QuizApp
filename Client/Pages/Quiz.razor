@@ -1,6 +1,8 @@
 ﻿@page "/quiz/"
+
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+
 @inject IAccessTokenProvider AccessTokenProvider
 @inject HttpClient httpClient
 @inject IJSRuntime JSRuntime
@@ -28,5 +30,4 @@
 </AuthorizeView>
 
 @code {
-    VidazorVideo quizVideo;
 }
