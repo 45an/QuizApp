@@ -12,17 +12,18 @@
 
 <AuthorizeView>
     <Authorized>
-        @if (Quiz.Title != null && Quiz.Title.Length > 0)
-        {
-            <h1>Create Quiz - @Quiz.Title</h1>
-        }
-        else
-        {
-            <h1>Create Quiz</h1>
-        }
-        <hr />
+        <header class="navbar position-sticky top-0 w-100 mb-4 p-0 border-bt-1 z-index-3">
+            @if (Quiz.Title != null && Quiz.Title.Length > 0)
+            {
+                <h2><strong>Create A New Quiz - @Quiz.Title</strong></h2>
+            }
+            else
+            {
+                <h2><strong>Create A New Quiz</strong></h2>
+            }
+        </header>
 
-        <div class="container">
+        <div class="container mt-4">
             @if (!string.IsNullOrEmpty(ErrorText))
             {
                 <div class="alert alert-danger" role="alert">
@@ -34,8 +35,8 @@
             }
 
             <form id="quiz-form" @onsubmit="CreateQuizPost">
-                <div class="col-md-6 w-100">
-                    <div class="form-group">
+                <div class="col-md-6 w-100 question">
+                    <div class="form-group p-2">
                         <input type="text" class="form-control" placeholder="Quiz Title" @bind="Quiz.Title" required>
                     </div>
                     <div class="form-group d-flex flex-wrap w-35 flex-grow-1">
@@ -69,12 +70,12 @@
                 @foreach (var question in Quiz.Questions)
                 {
                     <div class="question d-flex flex-column">
-                        <h2 class="p-2 mb-0 d-flex justify-content-between">Question @(question.Index + 1)
+                        <h3 class="p-2 mb-0 d-flex justify-content-between">Question @(question.Index + 1)
                             <span>
                                 <button type="button" class="btn btn-danger oi oi-trash"
                                     @onclick="() => RemoveQuestion(question)"></button>
                             </span>
-                        </h2>
+                        </h3>
 
                         <div
                             class="form-check form-switch d-flex flex-row m-0 p-2 gap-2 justify-content-start align-items-center">
