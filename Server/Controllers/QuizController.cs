@@ -45,22 +45,21 @@ namespace QuizApp.Server.Controllers
             return Ok(quizzesView);
         }
 
-        [HttpGet("getquiz/{title}")]
-        public ActionResult GetQuiz(string title)
+        [HttpGet("getquiz/{quizId}")]
+        public ActionResult GetQuiz(int quizId)
         {
             var quiz = _context
-                .Quizzes.Include(q => q.Questions)
-                .ThenInclude(q => q.MocksAnswers)
-                .Where(t => t.Title == title)
+                .Quizzes.Include(q => q.Media)
+                .Where(t => t.Id == quizId)
                 .FirstOrDefault();
 
             if (quiz == null)
             {
-                return NotFound(new { Message = "Quiz could not be found." }); // Returnera en NotFound HTTP-statuskod om quiz inte hittades med meddelandet "Quiz could not be found."
+                return NotFound(new { Message = "Quiz could not be found." });
             }
 
-            //var quizView = QuizConverter.ConvertQuiz(quiz);
-            return Ok(quiz);
+            var quizView = QuizConverter.Convert(quiz);
+            return Ok(quizView);
         }
 
         [HttpPost("addquiz")]

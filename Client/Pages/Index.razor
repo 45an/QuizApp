@@ -16,32 +16,7 @@
             <div class="d-flex flex-row flex-wrap flex-grow-1 gap-4 mg-0">
             @foreach (var quiz in quizModels)
             {
-                <div class="card flex-row w-45 p-0 m-0">
-
-                    @if (quiz.Media != null && !string.IsNullOrEmpty(quiz.Media.Path) &&
-                    !string.IsNullOrEmpty(quiz.Media.ContentType))
-                    {
-                        @if (quiz.Media.ContentType.Contains("image"))
-                        {
-                            <img src="@quiz.Media.Path" class="w-50" style="max-width:inherit;" />
-                        }
-                        @if (quiz.Media.ContentType.Contains("video"))
-                        {
-                            <VidazorVideo controls="false" class="img-fluid w-50" style="max-width:inherit;"
-                                type="@quiz.Media.ContentType">
-                                <source src="@quiz.Media.Path" class="w-100">
-                            </VidazorVideo>
-                        }
-                    }
-                    <div class="card-body">
-                        <h5 class="card-title">@quiz.Title</h5>
-                        <p class="card-text">Date Created: @quiz.DateCreated.ToShortDateString()</p>
-                        <p class="card-text">Max Score: @quiz.MaxScore</p>
-                        <p class="card-text">Games Played: @quiz.GamesPlayed</p>
-                        <!-- Add more details as needed -->
-                        <a href="/quiz/@quiz.Id" class="btn btn-primary">Take Quiz</a>
-                    </div>
-                </div>
+                <QuizCard quizId="@quiz.Id" quizTemplate="false" />
             }
             </div>
         </div

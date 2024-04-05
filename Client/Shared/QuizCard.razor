@@ -1,27 +1,56 @@
-﻿<div class="card flex-row w-45 p-0 m-0">
-        @if (quizTemplate) {
-        <img
-            src="https://picsum.photos/200/200"
-            class="w-10 h-10 ratio-1x1" />
+﻿@using QuizApp.Client.Shared.Models
+
+@inject HttpClient httpClient
+
+<div class="card flex-row w-45 p-0 m-0">
+    @if (quizTemplate) {
+    <img
+        src="https://picsum.photos/200/200"
+        class="w-10 h-10 ratio-1x1" />
+    }
+    @if (quizModel.Media != null && !string.IsNullOrEmpty(quizModel.Media.Path) &&
+    !string.IsNullOrEmpty(quizModel.Media.ContentType))
+    {
+        @if (quizModel.Media.ContentType.Contains("image"))
+        {
+            <img src="@quizModel.Media.Path" class="w-50" style="max-width:inherit;" />
         }
+        @if (quizModel.Media.ContentType.Contains("video"))
+        {
+            <VidazorVideo controls="false" class="img-fluid w-50" style="max-width:inherit;"
+                type="@quizModel.Media.ContentType">
+                <source src="@quizModel.Media.Path" class="w-100">
+            </VidazorVideo>
+        }
+    }
     <div class="card-body">
-        @if (quizTemplate) {
-            <h5 class="card-title">Quiz of the day</h5>
-            <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                Nulla ac blandit lorem. Donec viverra tellus non arcu consectetur, vel mattis nunc vehicula.</p>
-            <a href="/" class="btn btn-primary">Template</a>
-        } else {
-            <h5 class="card-title">Real Quiz Title</h5>
-            <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-            <a href="/quiz/{id}" class="btn btn-primary">Take Quiz</a>
-        }
+        <h5 class="card-title">@quizModel.Title</h5>
+        <p class="card-text">Date Created: @quizModel.DateCreated.ToShortDateString()</p>
+        <p class="card-text">Max Score: @quizModel.MaxScore</p>
+        <p class="card-text">Games Played: @quizModel.GamesPlayed</p>
+        <a href="/quiz/@quizModel.Id" class="btn btn-primary">Take Quiz</a>
     </div>
 </div>
 
 @code {
-    //[Parameter]
-    //public QuizModel quizModel { get; set; }
-
+    [Parameter]
+    public int quizId { get; set; }
     [Parameter]
     public bool quizTemplate { get; set; }
+
+    private QuizModel quizModel = new QuizModel();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await httpClient.GetAsync($"api/quiz/getquiz/{quizId}");
+        if (response.IsSuccessStatusCode)
+        {
+            var content = await response.Content.ReadAsStringAsync();
+            quizModel = JsonConvert.DeserializeObject<QuizModel>(content);
+        }
+        else
+        {
+            // Handle error
+        }
+    }
 }
