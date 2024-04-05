@@ -2,6 +2,7 @@
 
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using QuizApp.Client.Shared.Models
 
 @inject HttpClient httpClient
 
@@ -22,11 +23,11 @@
                     {
                         @if (quiz.Media.ContentType.Contains("image"))
                         {
-                            <img src="@quiz.Media.Path" class="w-100" style="max-width:inherit;" />
+                            <img src="@quiz.Media.Path" class="w-50" style="max-width:inherit;" />
                         }
                         @if (quiz.Media.ContentType.Contains("video"))
                         {
-                            <VidazorVideo controls class="img-fluid w-100" style="max-width:inherit;"
+                            <VidazorVideo controls="false" class="img-fluid w-50" style="max-width:inherit;"
                                 type="@quiz.Media.ContentType">
                                 <source src="@quiz.Media.Path" class="w-100">
                             </VidazorVideo>
@@ -102,45 +103,6 @@
 
 
 @code {
-    public class QuizModel
-    {
-        public int Id { get; set; }
-        public string? Title { get; set; }
-        public MediaModel? Media { get; set; }
-        public DateTime DateCreated { get; set; }
-        public int MaxScore { get; set; }
-        public int GamesPlayed { get; set; }
-        public List<QuestionModel>? Questions { get; set; } = new List<QuestionModel>();
-    }
-
-    public class QuestionModel
-    {
-        public int Id { get; set; }
-        public int QuizId { get; set; }
-        public string? Questions { get; set; }
-        public string? Answer { get; set; }
-        public MediaModel? Media { get; set; }
-        public int Time { get; set; }
-        public bool MultipleChoice { get; set; }
-        public List<MockModel>? MocksAnswer { get; set; } = new List<MockModel>();
-    }
-
-    public class MediaModel
-    {
-        public Guid? MediaGuid { get; set; }
-        public string? Hash { get; set; }
-        public string? Path { get; set; }
-        public string? ContentType { get; set; }
-        public byte[]? FileBytes { get; set; }
-    }
-
-    public class MockModel
-    {
-        public int Id { get; set; }
-        public int QuestionId { get; set; }
-        public string? MockAnswer { get; set; }
-    }
-
     private List<QuizModel> quizModels = new List<QuizModel>();
 
     protected override async Task OnInitializedAsync()
