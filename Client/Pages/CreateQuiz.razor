@@ -12,7 +12,7 @@
 
 <AuthorizeView>
     <Authorized>
-        <header class="navbar position-sticky top-0 w-100 mb-4 p-0 border-bt-1 z-index-3">
+        <header class="navbar w-100 mb-4 p-0 border-bt-1">
             @if (Quiz.Title != null && Quiz.Title.Length > 0)
             {
                 <h2><strong>Create A New Quiz - @Quiz.Title</strong></h2>
@@ -23,7 +23,7 @@
             }
         </header>
 
-        <div class="container mt-4">
+        <div class="container">
             @if (!string.IsNullOrEmpty(ErrorText))
             {
                 <div class="alert alert-danger" role="alert">
@@ -251,6 +251,7 @@
         public int Index { get; set; }
         public string Title { get; set; }
         public virtual MediaModel? Media { get; set; }
+        public IBrowserFile File { get; set; }
         public List<QuestionModel> Questions { get; set; } = new List<QuestionModel>();
     }
 
@@ -320,7 +321,9 @@
     {
         if (question.MocksAnswers != null && question.MocksAnswers.Count > 2)
         {
-            question.MocksAnswers.RemoveAt(question.MocksAnswers.Count - 1); // Remove the last mock answer
+            var copyOfMocks = new List<MockModel>(question.MocksAnswers);
+            copyOfMocks.RemoveAt(copyOfMocks.Count - 1);
+            question.MocksAnswers = copyOfMocks;
         }
     }
 
@@ -349,13 +352,14 @@
         int maxMb = 13;
         long megaByte = 1024 * 1024;
         long maxAllowedSizeInBytes = maxMb * megaByte;
+        long fileSize = Quiz.File.Size;
 
         try
         {
-            // Check if the quiz has media attached
-            if (Quiz.Media == null || Quiz.Media.Hash == null)
+            // Check if the quiz or quiz media is null
+            if (Quiz == null || Quiz.Media == null || Quiz.Media.Hash == null)
             {
-                ErrorText = "No media attached for the quiz.";
+                ErrorText = "Quiz or quiz media is null.";
                 return;
             }
 
@@ -380,8 +384,6 @@
                 return;
             }
 
-            // Check file size
-            long fileSize = Quiz.Media.FileBytes.Length;
             if (fileSize > maxAllowedSizeInBytes)
             {
                 // Format the file size with one decimal place
@@ -399,7 +401,7 @@
             if (string.IsNullOrEmpty(extension) || !permittedFileTypes.Contains(extension))
             {
                 ErrorText = $"Invalid file type. Permitted files are:\n{string.Join("\n", permittedFileTypes)}";
-                Console.WriteLine(ErrorText);
+                Console.WriteLine("Not a Permitted File Type: " + ErrorText);
                 return;
             }
 
@@ -454,13 +456,14 @@
             if (e.File != null)
             {
                 var file = e.File;
+                Quiz.File = file;
 
                 var media = await HandleFileUpload(file);
                 if (media != null)
                 {
                     Quiz.Media = media;
+                    Console.WriteLine("Quiz Media: " + media.Path);
                 }
-                //Console.WriteLine("Quiz Media: " + media.Path);
             }
         }
         catch (Exception ex)

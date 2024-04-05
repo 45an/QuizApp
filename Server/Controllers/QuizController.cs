@@ -99,7 +99,7 @@ namespace QuizApp.Server.Controllers
                         //Media = null,
                         MultipleChoice = questionModel.MultipleChoice,
                         QuizId = quizToAdd.Id, // Set QuizId for the question
-                        MocksAnswers = questionModel.MocksAnswers
+                        MocksAnswers = new List<Mock>()
                     };
 
                     if (questionModel.Media != null && questionModel.Media.Hash != null)
@@ -117,10 +117,10 @@ namespace QuizApp.Server.Controllers
                     {
                         foreach (var mockAnswerModel in questionModel.MocksAnswers)
                         {
-                            var mockToAdd = new Mock 
-                            { 
+                            var mockToAdd = new Mock
+                            {
                                 QuestionId = questionModel.Id,
-                                MockAnswer = mockAnswerModel.MockAnswer 
+                                MockAnswer = mockAnswerModel.MockAnswer
                             };
                             questionToAdd.MocksAnswers.Add(mockToAdd);
                         }
