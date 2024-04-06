@@ -22,9 +22,12 @@
     display: block;
     height: fit-content;
     max-height: 45vh !important;
+    padding-right: 1rem;
 }
 
 .image {
     aspect-ratio: initial;
     object-fit: contain !important;
+    max-height: inherit;
+    max-width: inherit;
 }

@@ -62,11 +62,11 @@
                             <div class="image-container">
                                 @if (Quiz.Media.ContentType.Contains("image"))
                                 {
-                                    <img src="@Quiz.Media.Path" class="w-100 image rounded" style="max-width:inherit;" />
+                                    <img src="@Quiz.Media.Path" class="w-100 image rounded"/>
                                 }
                                 @if (Quiz.Media.ContentType.Contains("video"))
                                 {
-                                    <VidazorVideo controls class="img-fluid w-100 image rounded" style="max-width:inherit;"
+                                    <VidazorVideo controls class="img-fluid w-100 image rounded"
                                         type="@Quiz.Media.ContentType">
                                         <source src="@Quiz.Media.Path" class="">
                                     </VidazorVideo>
@@ -202,11 +202,11 @@
                                 <div class="image-container w-100 align-items-center">
                                     @if (question.Media.ContentType.Contains("image"))
                                     {
-                                        <img src="@question.Media.Path" class="image rounded" style="max-width:inherit;" />
+                                        <img src="@question.Media.Path" class="image rounded" />
                                     }
                                     @if (question.Media.ContentType.Contains("video"))
                                     {
-                                        <VidazorVideo controls class="image rounded" style="max-width:inherit;"
+                                        <VidazorVideo controls class="image rounded"
                                             type="@question.Media.ContentType">
                                             <source src="@question.Media.Path" class="">
                                         </VidazorVideo>
