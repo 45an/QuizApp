@@ -1,5 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@inject NavigationManager Navigation
 
     <div class="top-row ps-3 navbar navbar-dark">
         <div class="container-fluid">
@@ -10,31 +11,52 @@
         </div>
     </div>
 
-    <div class="@NavMenuCssClass nav-scrollable d-flex flex-column justify-content-between" @onclick="ToggleNavMenu">
+    <div class="@NavMenuCssClass never-collapse nav-scrollable flex-column justify-content-between flex-grow">
         <nav class="flex-column">
             <div class="nav-item px-3">
-                <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                    <span class="oi oi-home" aria-hidden="true"></span> Home
+                <NavLink class="nav-link align-items-center" href="" Match="NavLinkMatch.All" @onclick="ToggleNavMenu">
+                    <i class="fa-solid fa-home" style="width: 2rem;" aria-hidden="true"></i> Home
                 </NavLink>
             </div>
-        <AuthorizeView>
+            <AuthorizeView>
                 <Authorized>
                     <div class="nav-item px-3">
-                        <NavLink class="nav-link" href="userQuiz">
-                            <span class="oi oi-person" aria-hidden="true"></span> Your Quiz's
+                        <NavLink class="nav-link" href="userQuiz" @onclick="ToggleNavMenu">
+                            <i class="fa-solid fa-user" style="width: 2rem;" aria-hidden="true"></i> Your Quiz's
                         </NavLink>
                     </div>
                     <div class="nav-item px-3">
-                        <NavLink class="nav-link" href="createQuiz">
-                            <span class="oi oi-plus" aria-hidden="true"></span> Create Quiz
+                        <NavLink class="nav-link" href="createQuiz" @onclick="ToggleNavMenu">
+                            <i class="fa-solid fa-square-plus" style="width: 2rem;" aria-hidden="true"></i> Create Quiz
                         </NavLink>
                     </div>
                 </Authorized>
-        </AuthorizeView>
+                <NotAuthorized>
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="authentication/register" @onclick="ToggleNavMenu">
+                            <i class="fa-solid fa-user-plus" style="width: 2rem;" aria-hidden="true"></i> Register
+                        </NavLink>
+                    </div>
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="authentication/login" style="cursor:pointer" @onclick="ToggleNavMenu">
+                            <i class="fa-solid fa-right-to-bracket" style="width: 2rem;" aria-hidden="true"></i> Log in
+                        </NavLink>
+                    </div>
+                </NotAuthorized>
+            </AuthorizeView>
         </nav>
         <nav class="flex-column">
             <div class="nav-item px-3">
-                <LoginDisplay />
+                <AuthorizeView>
+                    <Authorized>
+                        <NavLink class="nav-link" href="authentication/profile" @onclick="ToggleNavMenu">
+                            <i class="fa-solid fa-user-edit" style="width: 2rem;" aria-hidden="true"></i> @context.User.Identity?.Name
+                        </NavLink>
+                        <NavLink class="nav-link" @onclick="BeginLogOut" style="cursor:pointer">
+                            <i class="fa-solid fa-right-from-bracket" style="width: 2rem;" aria-hidden="true"></i> Log out
+                        </NavLink>
+                    </Authorized>
+                </AuthorizeView>
             </div>
         </nav>
     </div>
@@ -42,10 +64,16 @@
 @code {
     private bool collapseNavMenu = true;
 
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : "collapsed";
 
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+    }
+
+    private void BeginLogOut()
+    {
+        Navigation.NavigateToLogout("authentication/logout");
+        ToggleNavMenu();
     }
 }

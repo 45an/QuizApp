@@ -1,19 +1,30 @@
 ﻿::deep .drop-zone {
-    padding: 1rem;
     border: dashed 2px transparent;
     border-radius: 0.25rem;
     transition: border linear 0.2s;
+    cursor: pointer;
+}
+
+::deep .drop-zone input {
+    cursor: pointer;
+}
+
+::deep .drop-zone p {
+    cursor: pointer;
 }
 
 ::deep .drop-zone.hover {
     border: dashed 2px gray;
 }
 
-.question {
-    border: 1px solid rgba(0, 0, 0, .25);
-    border-radius: 0.25rem;
+.image-container {
+    position: relative;
+    display: block;
+    height: fit-content;
+    max-height: 45vh !important;
 }
 
-.border-bt-1 {
-    border-bottom: 1px solid rgba(0, 0, 0, .25);
+.image {
+    aspect-ratio: initial;
+    object-fit: contain !important;
 }

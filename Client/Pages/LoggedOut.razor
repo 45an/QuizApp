@@ -1,0 +1,14 @@
+@page "/authentication/logged-out"
+@inject NavigationManager Navigation
+
+@code{
+    protected override void OnAfterRender(bool firstRender)
+    {
+        // execute conditionally for loading data, otherwise this will load
+        // every time the page refreshes
+        if(firstRender)
+        {
+            Navigation.NavigateTo("/");
+        }
+    }
+}

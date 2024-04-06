@@ -6,12 +6,14 @@ namespace QuizApp.Client.Shared.Models
     {
         public int Id { get; set; }
         public int Index { get; set; }
+        public string UserName { get; set; }
         public string Title { get; set; }
         public virtual MediaModel? Media { get; set; }
         public IBrowserFile File { get; set; }
         public DateTime DateCreated { get; set; }
         public int MaxScore { get; set; }
         public int GamesPlayed { get; set; }
+        public string? UserId { get; set; }
         public List<QuestionModel> Questions { get; set; } = new List<QuestionModel>();
     }
 

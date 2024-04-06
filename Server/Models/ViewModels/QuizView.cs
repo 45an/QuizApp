@@ -3,6 +3,7 @@
     public class QuizView
     {
         public int Id { get; set; }
+        public string? UserName { get; set; }
         public string? Title { get; set; }
         public MediaView? Media { get; set; }
         public DateTime DateCreated { get; set; }

@@ -10,10 +10,12 @@
 
 <AuthorizeView>
     <Authorized>
-        <h1>Welcome To the Quiz Game!</h1>
+        <header class="navbar w-100 mb-4 p-0 border-bottom border-2 border-secondary text-light">
+            <h1><strong>Welcome To the Quiz Game!</strong></h1>
+        </header>
 
         <div class="container">
-            <div class="d-flex flex-row flex-wrap flex-grow-1 gap-4 mg-0">
+            <div class="d-flex flex-row flex-shrink flex-wrap w-100 p-0 m-0 mb-4 gap-4 justify-content-center">
             @foreach (var quiz in quizModels)
             {
                 <QuizCard quizId="@quiz.Id" quizTemplate="false" />
@@ -23,8 +25,8 @@
     </Authorized>
     <NotAuthorized>
         <div class="container">
-            <div class=" d-flex flex-row flex-wrap align-items-center">
-                <div class="col w-100 pt-4">
+            <div class="alert alert-warning text-light card-container" role="alert">
+                <div class="col w-100">
                     <h1><strong>Welcome to Quiz App!</strong></h1>
 
                     <p>
@@ -61,16 +63,18 @@
                         <strong>Quiz Participation:</strong><br>
                         Answer quizzes that you've been linked to and track your performance.
                     </p>
+                    <a class="text-decoration-none" href="https://github.com/45an/QuizApp"><h2><i class="fa-brands fa-github"></i> Visit the GitHub!</h2></a>
                 </div>
-                <div class="d-flex flex-col">
-                    <div class="container d-flex justify-content-center">
-                        <div class="d-flex flex-row flex-wrap flex-grow-1 gap-4 mg-0">
-                            <QuizCard quizTemplate=@true />
-                            <QuizCard quizTemplate=@true />
-                            <QuizCard quizTemplate=@true />
-                        </div>
-                    </div>
-                </div>
+            </div>
+            <div class="d-flex flex-row flex-shrink flex-wrap w-100 p-0 m-0 mb-4 gap-4 justify-content-center">
+                <QuizCard quizId="null" quizTemplate="true" />
+                <QuizCard quizId="null" quizTemplate="true" />
+                <QuizCard quizId="null" quizTemplate="true" />
+                <QuizCard quizId="null" quizTemplate="true" />
+                <QuizCard quizId="null" quizTemplate="true" />
+                <QuizCard quizId="null" quizTemplate="true" />
+                <QuizCard quizId="null" quizTemplate="true" />
+                <QuizCard quizId="null" quizTemplate="true" />
             </div>
         </div>
     </NotAuthorized>

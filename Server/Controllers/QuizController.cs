@@ -33,7 +33,7 @@ namespace QuizApp.Server.Controllers
         [HttpGet("getallquizzes")]
         public IActionResult GetAllQuizzes()
         {
-            var quizzes = _context.Quizzes.Include(q => q.Media).ToList();
+            var quizzes = _context.Quizzes?.Include(q => q.Media).ToList();
 
             List<QuizView> quizzesView = new List<QuizView>();
 
@@ -65,7 +65,8 @@ namespace QuizApp.Server.Controllers
         [HttpPost("addquiz")]
         public async Task<ActionResult> AddQuiz([FromBody] Quiz quizModel)
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            var user = await _userManager.FindByIdAsync(userId);
 
             try
             {
@@ -73,6 +74,7 @@ namespace QuizApp.Server.Controllers
                 var quizToAdd = new Quiz
                 {
                     UserId = userId,
+                    UserName = user.UserName,
                     Title = quizModel.Title,
                     //Media = quizModel.Media,
                     DateCreated = DateTime.UtcNow,
@@ -84,7 +86,7 @@ namespace QuizApp.Server.Controllers
                 if (quizModel.Media != null && quizModel.Media.Hash != null)
                 {
                     // Fetch media based on the provided Hash
-                    var media = _context.Media.FirstOrDefault(m => m.Hash == quizModel.Media.Hash);
+                    var media = _context.Media?.FirstOrDefault(m => m.Hash == quizModel.Media.Hash);
                     // Associate media with the quiz
                     quizToAdd.Media = media;
                 }
@@ -104,7 +106,7 @@ namespace QuizApp.Server.Controllers
                     if (questionModel.Media != null && questionModel.Media.Hash != null)
                     {
                         // Fetch media based on the provided Hash
-                        var mediaQuestion = _context.Media.FirstOrDefault(m =>
+                        var mediaQuestion = _context.Media?.FirstOrDefault(m =>
                             m.Hash == questionModel.Media.Hash
                         );
                         // Associate media with the question
@@ -128,7 +130,7 @@ namespace QuizApp.Server.Controllers
                     quizToAdd.Questions.Add(questionToAdd);
                 }
 
-                _context.Quizzes.Add(quizToAdd);
+                _context.Quizzes?.Add(quizToAdd);
                 await _context.SaveChangesAsync();
 
                 var quizView = QuizConverter.Convert(quizModel);
