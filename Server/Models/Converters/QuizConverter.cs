@@ -7,10 +7,12 @@
             var quizView = new QuizView
             {
                 Id = quiz.Id,
+                UserName = quiz.UserName,
                 Title = quiz.Title,
+                Media = MediaConverter.Convert(quiz.Media),
                 GamesPlayed = quiz.GamesPlayed,
                 DateCreated = quiz.DateCreated,
-                MaxScore = quiz.MaxScore
+                MaxScore = quiz.MaxScore,
             };
 
             var _questions = new List<QuestionView>();

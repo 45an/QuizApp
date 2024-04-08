@@ -8,12 +8,12 @@ namespace QuizApp.Server.Models
     {
         [Key]
         public int Id { get; set; }
-
-        // [Required]
-        // public string? Name { get; set; }
+        public string? UserName { get; set; }
 
         [Required]
         public string? Title { get; set; }
+
+        public virtual Media? Media { get; set; }
 
         [Required]
         public DateTime DateCreated { get; set; }

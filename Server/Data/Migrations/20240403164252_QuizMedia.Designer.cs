@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QuizApp.Server.Data;
 
@@ -11,9 +12,11 @@ using QuizApp.Server.Data;
 namespace QuizApp.Server.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240403164252_QuizMedia")]
+    partial class QuizMedia
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -499,7 +502,7 @@ namespace QuizApp.Server.Data.Migrations
                     b.Property<int>("MaxScore")
                         .HasColumnType("int");
 
-                    b.Property<int?>("MediaId")
+                    b.Property<int?>("QuizMediaId")
                         .HasColumnType("int");
 
                     b.Property<string>("Title")
@@ -509,12 +512,9 @@ namespace QuizApp.Server.Data.Migrations
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("UserName")
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("MediaId");
+                    b.HasIndex("QuizMediaId");
 
                     b.HasIndex("UserId");
 
@@ -628,15 +628,15 @@ namespace QuizApp.Server.Data.Migrations
 
             modelBuilder.Entity("QuizApp.Server.Models.Quiz", b =>
                 {
-                    b.HasOne("QuizApp.Server.Models.Media", "Media")
+                    b.HasOne("QuizApp.Server.Models.Media", "QuizMedia")
                         .WithMany()
-                        .HasForeignKey("MediaId");
+                        .HasForeignKey("QuizMediaId");
 
                     b.HasOne("QuizApp.Server.Models.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
 
-                    b.Navigation("Media");
+                    b.Navigation("QuizMedia");
 
                     b.Navigation("User");
                 });

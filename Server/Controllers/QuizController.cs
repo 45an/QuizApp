@@ -31,9 +31,9 @@ namespace QuizApp.Server.Controllers
         }
 
         [HttpGet("getallquizzes")]
-        public List<QuizView> GetAllQuizzes()
+        public IActionResult GetAllQuizzes()
         {
-            var quizzes = _context.Quizzes.ToList();
+            var quizzes = _context.Quizzes?.Include(q => q.Media).ToList();
 
             List<QuizView> quizzesView = new List<QuizView>();
 
@@ -42,31 +42,31 @@ namespace QuizApp.Server.Controllers
                 quizzesView.Add(QuizConverter.Convert(quiz));
             }
 
-            return quizzesView;
+            return Ok(quizzesView);
         }
 
-        [HttpGet("getquiz/{title}")]
-        public ActionResult GetQuiz(string title)
+        [HttpGet("getquiz/{quizId}")]
+        public ActionResult GetQuiz(int quizId)
         {
             var quiz = _context
-                .Quizzes.Include(q => q.Questions)
-                .ThenInclude(q => q.MocksAnswers)
-                .Where(t => t.Title == title)
+                .Quizzes.Include(q => q.Media)
+                .Where(t => t.Id == quizId)
                 .FirstOrDefault();
 
             if (quiz == null)
             {
-                return NotFound(new { Message = "Quiz could not be found." }); // Returnera en NotFound HTTP-statuskod om quiz inte hittades med meddelandet "Quiz could not be found."
+                return NotFound(new { Message = "Quiz could not be found." });
             }
 
-            //var quizView = QuizConverter.ConvertQuiz(quiz);
-            return Ok(quiz);
+            var quizView = QuizConverter.Convert(quiz);
+            return Ok(quizView);
         }
 
         [HttpPost("addquiz")]
         public async Task<ActionResult> AddQuiz([FromBody] Quiz quizModel)
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            var user = await _userManager.FindByIdAsync(userId);
 
             try
             {
@@ -74,12 +74,22 @@ namespace QuizApp.Server.Controllers
                 var quizToAdd = new Quiz
                 {
                     UserId = userId,
+                    UserName = user.UserName,
                     Title = quizModel.Title,
+                    //Media = quizModel.Media,
                     DateCreated = DateTime.UtcNow,
                     MaxScore = quizModel.Questions.Count * 100, // Assuming each question is worth 100 points
                     GamesPlayed = 0,
                     Questions = new List<Question>() // Initialize the Questions collection
                 };
+
+                if (quizModel.Media != null && quizModel.Media.Hash != null)
+                {
+                    // Fetch media based on the provided Hash
+                    var media = _context.Media?.FirstOrDefault(m => m.Hash == quizModel.Media.Hash);
+                    // Associate media with the quiz
+                    quizToAdd.Media = media;
+                }
 
                 foreach (var questionModel in quizModel.Questions)
                 {
@@ -96,11 +106,11 @@ namespace QuizApp.Server.Controllers
                     if (questionModel.Media != null && questionModel.Media.Hash != null)
                     {
                         // Fetch media based on the provided Hash
-                        var media = _context.Media.FirstOrDefault(m =>
+                        var mediaQuestion = _context.Media?.FirstOrDefault(m =>
                             m.Hash == questionModel.Media.Hash
                         );
                         // Associate media with the question
-                        questionToAdd.Media = media;
+                        questionToAdd.Media = mediaQuestion;
                     }
 
                     // Add mock answers if it's a multiple choice question
@@ -108,7 +118,11 @@ namespace QuizApp.Server.Controllers
                     {
                         foreach (var mockAnswerModel in questionModel.MocksAnswers)
                         {
-                            var mockToAdd = new Mock { MockAnswer = mockAnswerModel.MockAnswer };
+                            var mockToAdd = new Mock
+                            {
+                                QuestionId = questionModel.Id,
+                                MockAnswer = mockAnswerModel.MockAnswer
+                            };
                             questionToAdd.MocksAnswers.Add(mockToAdd);
                         }
                     }
@@ -116,7 +130,7 @@ namespace QuizApp.Server.Controllers
                     quizToAdd.Questions.Add(questionToAdd);
                 }
 
-                _context.Quizzes.Add(quizToAdd);
+                _context.Quizzes?.Add(quizToAdd);
                 await _context.SaveChangesAsync();
 
                 var quizView = QuizConverter.Convert(quizModel);

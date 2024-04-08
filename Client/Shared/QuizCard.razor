@@ -1,17 +1,98 @@
-﻿<div class="card flex-row w-45 p-0 m-0">
-    <img
-        @* src="@quizSource"  *@
-        srcset="https://picsum.photos/200/200"
-        class="w-10 h-10 ratio-1x1" />
-    <div class="card-body">
-        <h5 class="card-title">Quiz of the day</h5>
-        <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
-            Nulla ac blandit lorem. Donec viverra tellus non arcu consectetur, vel mattis nunc vehicula.</p>
-        <a href="/quiz/" class="btn btn-primary">Take Quiz</a>
+﻿@using QuizApp.Client.Shared.Models
+
+@inject HttpClient httpClient
+
+<div class="w-25 card card-container text-light justify-content-between flex-grow-1">
+    @if (quizTemplate) {
+        <div class="hero-image-container w-100 align-items-center">
+            <img
+            src="https://picsum.photos/100/400"
+            class="w-100 hero-image rounded" />
+        </div>
+    }
+    @if (quizModel.Media != null && !string.IsNullOrEmpty(quizModel.Media.Path) &&
+    !string.IsNullOrEmpty(quizModel.Media.ContentType))
+    {
+        <a href="/quiz/@quizModel.Id" class="hero-image-container w-100 align-items-center">
+            @if (quizModel.Media.ContentType.Contains("image"))
+            {
+                <img src="@quizModel.Media.Path" class="w-100 hero-image rounded"/>
+            }
+            @if (quizModel.Media.ContentType.Contains("video"))
+            {
+                <VidazorVideo class="w-100 hero-image rounded mb-0"
+                    type="@quizModel.Media.ContentType">
+                    <source src="@quizModel.Media.Path" controls="false" muted="true">
+                </VidazorVideo>
+            }
+        </a>
+    }
+    @if (quizTemplate) {
+    <div class="main-content p-2">
+        <h1 class="pb-2 m-0 border-bottom border-secondary">Title</h1>
+        <div class="d-flex flex-row flex-wrap justify-content-between align-items-center py-2 gap-1">
+            <div class="d-flex flex-grow align-items-center align-text-center card-attribute">
+                <i class="fa-solid fa-star"/>
+                <p class="text-light"> 420</p>
+            </div>
+            <div class="d-flex flex-grow align-items-center align-text-center card-attribute">
+                <i class="fa-solid fa-clock"/>
+                <p class="text-light"> Never</p>
+            </div>
+            <div class="d-flex flex-grow align-items-center align-text-center card-attribute">
+                <i class="fa-solid fa-arrow-rotate-left"></i>
+                <p class="text-light"> Played: Never</p>
+            </div>
+        </div>
+        <div class="d-flex flex-row card-attribute border-top border-secondary pt-2 gap-2">
+            <p class="text-light">Quiz by <span><a href="#">AI</a></span></p>
+        </div>
     </div>
+    } else {
+    <div class="main-content p-2">
+        <h1 class="pb-2 m-0">@quizModel.Title</h1>
+        <div class="d-flex flex-row flex-wrap justify-content-between align-items-center py-2 gap-1
+                    border border-secondary rounded stats">
+            <div class="d-flex flex-grow align-items-center align-text-center card-attribute">
+                <i class="fa-solid fa-star"/>
+                <p class="text-light"> @quizModel.MaxScore</p>
+            </div>
+            <div class="d-flex flex-grow align-items-center align-text-center card-attribute">
+                <i class="fa-solid fa-clock"/>
+                <p class="text-light"> @quizModel.DateCreated.ToShortDateString()</p>
+            </div>
+            <div class="d-flex flex-grow align-items-center align-text-center card-attribute">
+                <i class="fa-solid fa-arrow-rotate-left"></i>
+                <p class="text-light"> Played: @quizModel.GamesPlayed</p>
+            </div>
+        </div>
+        <div class="d-flex flex-row flex-wrap card-attribute py-2 gap-2">
+            <p class="text-light">Quiz by <span><a class="text-decoration-none" href="{quizModel.UserId}">@quizModel.UserName</a></span></p>
+        </div>
+    </div>
+    }
 </div>
 
 @code {
     [Parameter]
-    public string? quizSource { get; set; }
+    public int? quizId { get; set; }
+    [Parameter]
+    public bool quizTemplate { get; set; }
+
+    private QuizModel quizModel = new QuizModel();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (quizId == null) { return; }
+        var response = await httpClient.GetAsync($"api/quiz/getquiz/{quizId}");
+        if (response.IsSuccessStatusCode)
+        {
+            var content = await response.Content.ReadAsStringAsync();
+            quizModel = JsonConvert.DeserializeObject<QuizModel>(content);
+        }
+        else
+        {
+            // Handle error
+        }
+    }
 }
