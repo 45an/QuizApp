@@ -4,6 +4,11 @@
     {
         public static QuestionView Convert(Question question)
         {
+            if (question == null)
+            {
+                throw new ArgumentNullException(nameof(question), "Question cannot be null.");
+            }
+
             var questionView = new QuestionView
             {
                 Id = question.Id,

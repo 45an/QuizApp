@@ -1,14 +1,31 @@
+.stats {
+    background-color: var(--var-main-darkest);
+    border-color: transparent !important;
+}
+
+.stats i {
+    color: var(--var-soft-blue);
+}
+
 .card-container {
+    background-color: var(--var-card-dark);
+    border-radius: .25rem;
     min-width: 30%;
     max-width: 50% !important;
     height: fit-content !important;
+}
+
+.main-content {
+    flex-shrink: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .hero-image-container {
     position: relative;
     display: block;
     height: fit-content;
-    max-height: 45vh !important;
+    max-height: 45vh;
 }
 
 .hero-image {
@@ -63,15 +80,6 @@
     margin-right: .5rem;
     margin-bottom: 0;
     font-weight: 400;
-}
-
-.stats {
-    background-color: var(--var-main-darkest);
-    border-color: transparent !important;
-}
-
-.stats i {
-    color: var(--var-soft-blue);
 }
 
 @media (max-width: 641px) {

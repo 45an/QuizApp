@@ -1,21 +1,16 @@
 .navbar-toggler {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: transparent !important;
 }
 
-.top-row {
-    height: 3.5rem;
-    background-color: rgba(0, 0, 0, 0.4);
+.navbar-toggler:focus {
+    box-shadow: none !important;
 }
 
 .navbar-brand {
-    font-size: 1.1rem;
-}
-
-.oi {
-    width: 2rem;
-    font-size: 1.1rem;
-    vertical-align: text-top;
-    top: -2px;
+    font-size: 1rem;
+    margin: 0;
+    margin-right: auto;
+    font-weight: 500;
 }
 
 .nav-item {
@@ -50,17 +45,58 @@
     color: white;
 }
 
-.collapse {
-    display: flex !important;
+.collapse.navbar-brand {
+    display: unset !important;
 }
 
-.collapsed {
+.collapse {
     display: none;
 }
 
+.navbar-header {
+    padding-right: 1.5em;
+    flex-direction: row-reverse;
+}
+
 @media (min-width: 641px) {
+    .navbar-header {
+        flex-wrap: nowrap;
+        overflow: hidden;
+        flex-direction: row !important;
+        justify-content: flex-start;
+        padding: 0;
+        gap: 1em;
+        padding: 1rem;
+        /* padding-left: 0; */
+        flex-grow: 1;
+    }
+
+    .navbar-brand {
+        margin: 0 !important;
+    }
+
     .navbar-toggler {
+        font-size: 1rem;
+    }
+
+    .collapse {
         display: none;
+    }
+
+    .collapse nav {
+        width: 5rem;
+    }
+
+    .nav-link {
+        justify-content: center;
+    }
+
+    .collapse.list-item-text {
+        display: none !important;
+    }
+
+    .collapse.navbar-brand {
+        display: none !important;
     }
 
     .never-collapse {
@@ -70,7 +106,73 @@
 
     .nav-scrollable {
         /* Allow sidebar to scroll for tall menus */
-        height: calc(100vh - 3.5rem);
+        height: calc(100vh - 5rem);
         overflow-y: auto;
+        margin-right: 2rem;
     }
+
+    .collapse.nav-scrollable {
+        margin-right: 0;
+    }
+
+    .sidebar {
+        height: 100vh;
+        max-width: 250px;
+        min-width: fit-content !important;
+        position: sticky;
+        top: 0;
+    }
+
+    ::deep .sidebar :hover {
+        display: flex;
+    }
+
+    .top-row {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+
+    .top-row.auth ::deep a:first-child {
+        flex: 1;
+        text-align: right;
+        width: 0;
+    }
+}
+
+@media (max-width: 640.98px) {
+
+    .top-row ::deep a,
+    .top-row ::deep .btn-link {
+        margin-left: 0;
+    }
+}
+
+.sidebar {
+    background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
+}
+
+.top-row {
+    background-color: inherit;
+    border-bottom: 1px solid #d6d5d5;
+    justify-content: space-between;
+    display: flex;
+    align-items: start;
+}
+
+.top-row ::deep a,
+.top-row ::deep .btn-link {
+    white-space: nowrap;
+    margin-left: 1.5rem;
+    text-decoration: none;
+}
+
+.top-row ::deep a:hover,
+.top-row ::deep .btn-link:hover {
+    font-weight: 800;
+}
+
+.top-row ::deep a:first-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

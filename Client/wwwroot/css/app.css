@@ -19,11 +19,8 @@
     --var-para: normal normal 300 1em/1.55em 'Outfit', sans-serif;
 }
 
-.card-container {
-    background-color: var(--var-card-dark);
-    border-radius: .25rem;
-}
 
+/* Create Quiz */
 .question {
     border: 1px solid rgba(0, 0, 0, .25);
     border-color: transparent !important;

@@ -4,6 +4,11 @@
     {
         public static MockView Convert(Mock mock)
         {
+            if (mock == null)
+            {
+                throw new ArgumentNullException(nameof(mock), "Mock cannot be null.");
+            }
+
             var mockView = new MockView
             {
                 Id = mock.Id,

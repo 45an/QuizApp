@@ -2,71 +2,91 @@
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @inject NavigationManager Navigation
 
-    <div class="top-row ps-3 navbar navbar-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="">QuizApp</a>
-            <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+    <div class="sidebar">
+        <div class="top-row navbar navbar-dark">
+            <div class="container-fluid navbar-header">
+                <button title="Navigation menu" class="navbar-toggler" @onclick="AlwaysToggleNavMenu">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <a class="@NavMenuCssClass navbar-brand" href="">QuizApp</a>
+            </div>
+        </div>
+
+        <div class="@NavMenuCssClass never-collapse nav-scrollable flex-column justify-content-between flex-grow">
+            <nav class="flex-column">
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link align-items-center" href="" Match="NavLinkMatch.All" @onclick="ToggleNavMenu">
+                        <i class="fa-solid fa-home" style="width: 2rem;" aria-hidden="true"></i><p class="@NavMenuCssClass list-item-text p-0 m-0"> Home</p>
+                    </NavLink>
+                </div>
+            <AuthorizeView>
+
+                <Authorized>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="userQuiz" @onclick="ToggleNavMenu">
+                        <i class="fa-solid fa-user" style="width: 2rem;" aria-hidden="true"></i><p class="@NavMenuCssClass list-item-text p-0 m-0"> Your Quiz's</p>
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="createQuiz" @onclick="ToggleNavMenu">
+                        <i class="fa-solid fa-square-plus" style="width: 2rem;" aria-hidden="true"></i><p class="@NavMenuCssClass list-item-text p-0 m-0"> Create Quiz</p>
+                    </NavLink>
+                </div>
+                </Authorized>
+
+                <NotAuthorized>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="authentication/login" style="cursor:pointer" @onclick="ToggleNavMenu">
+                        <i class="fa-solid fa-right-to-bracket" style="width: 2rem;" aria-hidden="true"></i><p class="@NavMenuCssClass list-item-text p-0 m-0"> Log in</p>
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="authentication/register" @onclick="ToggleNavMenu">
+                        <i class="fa-solid fa-user-plus" style="width: 2rem;" aria-hidden="true"></i><p class="@NavMenuCssClass list-item-text p-0 m-0"> Register</p>
+                    </NavLink>
+                </div>
+                </NotAuthorized>
+
+            </AuthorizeView>
+            </nav>
+            <nav class="flex-column">
+                <div class="nav-item px-3">
+                    <AuthorizeView>
+                        <Authorized>
+                            <NavLink class="nav-link" href="authentication/profile" @onclick="ToggleNavMenu">
+                                <i class="fa-solid fa-user-edit" style="width: 2rem;" aria-hidden="true"></i><p class="@NavMenuCssClass list-item-text p-0 m-0"> @context.User.Identity?.Name</p>
+                            </NavLink>
+                            <NavLink class="nav-link" @onclick="BeginLogOut" style="cursor:pointer">
+                                <i class="fa-solid fa-right-from-bracket" style="width: 2rem;" aria-hidden="true"></i><p class="@NavMenuCssClass list-item-text p-0 m-0"> Log out</p>
+                            </NavLink>
+                        </Authorized>
+                    </AuthorizeView>
+                </div>
+            </nav>
         </div>
     </div>
 
-    <div class="@NavMenuCssClass never-collapse nav-scrollable flex-column justify-content-between flex-grow">
-        <nav class="flex-column">
-            <div class="nav-item px-3">
-                <NavLink class="nav-link align-items-center" href="" Match="NavLinkMatch.All" @onclick="ToggleNavMenu">
-                    <i class="fa-solid fa-home" style="width: 2rem;" aria-hidden="true"></i> Home
-                </NavLink>
-            </div>
-            <AuthorizeView>
-                <Authorized>
-                    <div class="nav-item px-3">
-                        <NavLink class="nav-link" href="userQuiz" @onclick="ToggleNavMenu">
-                            <i class="fa-solid fa-user" style="width: 2rem;" aria-hidden="true"></i> Your Quiz's
-                        </NavLink>
-                    </div>
-                    <div class="nav-item px-3">
-                        <NavLink class="nav-link" href="createQuiz" @onclick="ToggleNavMenu">
-                            <i class="fa-solid fa-square-plus" style="width: 2rem;" aria-hidden="true"></i> Create Quiz
-                        </NavLink>
-                    </div>
-                </Authorized>
-                <NotAuthorized>
-                    <div class="nav-item px-3">
-                        <NavLink class="nav-link" href="authentication/register" @onclick="ToggleNavMenu">
-                            <i class="fa-solid fa-user-plus" style="width: 2rem;" aria-hidden="true"></i> Register
-                        </NavLink>
-                    </div>
-                    <div class="nav-item px-3">
-                        <NavLink class="nav-link" href="authentication/login" style="cursor:pointer" @onclick="ToggleNavMenu">
-                            <i class="fa-solid fa-right-to-bracket" style="width: 2rem;" aria-hidden="true"></i> Log in
-                        </NavLink>
-                    </div>
-                </NotAuthorized>
-            </AuthorizeView>
-        </nav>
-        <nav class="flex-column">
-            <div class="nav-item px-3">
-                <AuthorizeView>
-                    <Authorized>
-                        <NavLink class="nav-link" href="authentication/profile" @onclick="ToggleNavMenu">
-                            <i class="fa-solid fa-user-edit" style="width: 2rem;" aria-hidden="true"></i> @context.User.Identity?.Name
-                        </NavLink>
-                        <NavLink class="nav-link" @onclick="BeginLogOut" style="cursor:pointer">
-                            <i class="fa-solid fa-right-from-bracket" style="width: 2rem;" aria-hidden="true"></i> Log out
-                        </NavLink>
-                    </Authorized>
-                </AuthorizeView>
-            </div>
-        </nav>
-    </div>
-
 @code {
+    private bool IsWideScreen;
+
+    private bool MediaQueryMatch(string mediaQueryString)
+    {
+        return ((MarkupString)$"<style>@media {mediaQueryString} {{#__media-query-match{{}}</style>")
+            .ToString()
+            .Contains("#__media-query-match");
+    }
+
     private bool collapseNavMenu = true;
 
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : "collapsed";
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : "@NavMenuCssClass";
 
     private void ToggleNavMenu()
+    {
+        IsWideScreen = MediaQueryMatch("(min-width: 641px)");
+        if (IsWideScreen) {return;}
+        collapseNavMenu = !collapseNavMenu;
+    }
+    private void AlwaysToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
     }

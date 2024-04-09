@@ -49,7 +49,9 @@ namespace QuizApp.Server.Controllers
         public ActionResult GetQuiz(int quizId)
         {
             var quiz = _context
-                .Quizzes.Include(q => q.Media)
+                .Quizzes.Include(q => q.Media != null ? q.Media : null)
+                .Include(q => q.Questions != null ? q.Questions : null)
+                .ThenInclude(q => q.MocksAnswers != null ? q.MocksAnswers : null)
                 .Where(t => t.Id == quizId)
                 .FirstOrDefault();
 

@@ -1,7 +1,8 @@
-﻿@page "/quiz/"
+﻿@page "/quiz/{QuizId:int}"
 
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using QuizApp.Client.Shared.Models
 
 @inject IAccessTokenProvider AccessTokenProvider
 @inject HttpClient httpClient
@@ -10,9 +11,14 @@
 
 <AuthorizeView>
     <Authorized>
-        <h1>The quiz's title</h1>
 
-        <SurveyPrompt Title="The Question of the Quiz goes here" />
+        <QuizCard quizId="@QuizId" quizTemplate="false" />
+        <h1>@quizModel.Title - @quizModel.Id</h1>
+
+        @foreach (var question in quizModel.Questions){
+        <SurveyPrompt Title="@question.Questions" />
+        }
+
 
         <div class="btn-group" role="group" aria-label="Basic outlined example">
             <button type="button" class="btn btn-outline-primary"><span class="oi oi-arrow-left"></span></button>
@@ -30,4 +36,21 @@
 </AuthorizeView>
 
 @code {
+    [Parameter]
+    public int? QuizId { get; set; }
+    private QuizModel quizModel = new QuizModel();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await httpClient.GetAsync($"api/quiz/getquiz/{QuizId}");
+        if (response.IsSuccessStatusCode)
+        {
+            var content = await response.Content.ReadAsStringAsync();
+            quizModel = JsonConvert.DeserializeObject<QuizModel>(content);
+        }
+        else
+        {
+        Console.WriteLine("Could not get a response");
+        }
+    }
 }

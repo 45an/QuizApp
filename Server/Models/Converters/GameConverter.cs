@@ -4,6 +4,11 @@
     {
         public static GameView Convert(Game game)
         {
+            if (game == null)
+            {
+                throw new ArgumentNullException(nameof(game), "Game cannot be null.");
+            }
+
             var gameView = new GameView
             {
                 Id = game.Id,

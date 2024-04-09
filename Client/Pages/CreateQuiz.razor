@@ -16,15 +16,15 @@
         <header class="navbar w-100 mb-4 p-0 border-bottom border-2 border-secondary text-light">
             @if (Quiz.Title != null && Quiz.Title.Length > 0)
             {
-                <h2><strong>Create A New Quiz - @Quiz.Title</strong></h2>
+                <h1><strong>Create A New Quiz - @Quiz.Title</strong></h1>
             }
             else
             {
-                <h2><strong>Create A New Quiz</strong></h2>
+                <h1><strong>Create A New Quiz</strong></h1>
             }
         </header>
 
-        <div>
+        <div class="container">
             @if (!string.IsNullOrEmpty(ErrorText))
             {
                 <div class="alert alert-danger" role="alert">
