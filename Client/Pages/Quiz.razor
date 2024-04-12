@@ -11,25 +11,77 @@
 
 <AuthorizeView>
     <Authorized>
-
-        <QuizCard quizId="@QuizId" quizTemplate="false" />
-        <h1>@quizModel.Title - @quizModel.Id</h1>
-
-        @foreach (var question in quizModel.Questions){
-        <SurveyPrompt Title="@question.Questions" />
-        }
-
-
-        <div class="btn-group" role="group" aria-label="Basic outlined example">
-            <button type="button" class="btn btn-outline-primary"><span class="oi oi-arrow-left"></span></button>
-            <button type="button" class="btn btn-outline-primary">Subimt</button>
-            <button type="button" class="btn btn-outline-primary"><span class="oi oi-arrow-right"></span></button>
+        <div class="container pb-4">
+            <header class="navbar w-100 mb-4 p-0 border-bottom border-2 border-secondary text-light">
+                <h1><strong>@quizModel.Title</strong></h1>
+            </header>
+            <form>
+                @foreach (var question in quizModel.Questions)
+                {
+                    <div class="@("card card-container text-light justify-center flex-grow-1 mb-3 " + activeQuestionClass(question.Index))">
+                        <div class="main-content shadow p-2">
+                            <h5 class="pb-2 m-0">@question.Questions</h5>
+                            @if (question.Media != null && !string.IsNullOrEmpty(question.Media.Path) &&
+                            !string.IsNullOrEmpty(question.Media.ContentType))
+                            {
+                                <div href="/quiz/@quizModel.Id" class="hero-image-container w-100 align-items-center mb-2">
+                                    @if (question.Media.ContentType.Contains("image"))
+                                    {
+                                        <img src="@question.Media.Path" class="w-100 hero-image rounded"/>
+                                    }
+                                    @if (question.Media.ContentType.Contains("video"))
+                                    {
+                                        <VidazorVideo class="w-100 hero-image rounded mb-0"
+                                            type="@question.Media.ContentType">
+                                            <source src="@question.Media.Path" controls="false" muted="true">
+                                        </VidazorVideo>
+                                    }
+                                </div>
+                            }
+                            @if (question.MultipleChoice)
+                            {
+                                <div class="d-flex flex-row w-100 flex-grow-2 gap-1 flex-nowrap justify-contents-center form-group">
+                                    @foreach (var mockAnswer in question.MocksAnswers) {
+                                        @if (string.IsNullOrEmpty(mockAnswer.MockAnswer))
+                                        {
+                                            <div class="d-flex flex-grow-1 w-25 form-check align-items-center">
+                                                <input class="form-check-input me-2" type="radio" name="@($"answer-{question.Id}")" id="@($"answer-{question.Id}-{mockAnswer.Id}")">
+                                                <label class="form-check-label text-white" for="@($"answer-{question.Id}-{mockAnswer.Id}")">
+                                                    <p class="p-0 m-0">asdwa wdaw dawd awdwad awd</p>
+                                                </label>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="d-flex flex-grow-1 w-25 form-check align-items-center">
+                                                <input class="form-check-input me-2" type="radio" name="@($"answer-{question.Id}")" id="@($"answer-{question.Id}-{mockAnswer.Id}")">
+                                                <label class="form-check-label text-white" for="@($"answer-{question.Id}-{mockAnswer.Id}")">
+                                                    <p class="p-0 m-0">@mockAnswer.MockAnswer</p>
+                                                </label>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <input type="text" class="form-control mb-3" placeholder="Your Answer">
+                            }
+                        </div>
+                    </div>
+                }
+                <div class="btn-group" role="group" aria-label="Basic outlined example">
+                    <button type="button" class="btn btn-outline-primary" @onclick="PreviousQuestion"><i class="fas fa-arrow-left"></i> Previous</button>
+                    <button type="submit" class="btn btn-outline-primary" @onclick="SubmitQuiz">Submit</button>
+                    <button type="button" class="btn btn-outline-primary" @onclick="NextQuestion">Next <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </form>
         </div>
     </Authorized>
     <NotAuthorized>
         <div class="alert alert-warning" role="alert">
             <p>You need to be authenticated to access this quiz.</p>
-            <p>Please <a href="/Identity/Account/Login?ReturnUrl=%2Fconnect%2Fauthorize%2Fcallback%3Fclient_id%3DQuizApp.Client%26redirect_uri%3Dhttps%253A%252F%252Flocalhost%253A7086%252Fauthentication%252Flogin-callback%26response_type%3Dcode%26scope%3DQuizApp.ServerAPI%2520openid%2520profile%26state%3De2b332ba6bdf48299cb8a128fb890032%26code_challenge%3DfySN4TgaMpR3Vt9eiDfEhu-aIlV0CFM7C2ymsILeDEg%26code_challenge_method%3DS256%26response_mode%3Dquery">log in</a> to participate.</p>
+            <p>Please <a href="authentication/login">log in</a> to participate.</p>
             <p>If you don't have an account, you can <a href="/Identity/Account/Register?returnUrl=%2Fauthentication%2Flogin">register</a> for one.</p>
         </div>
     </NotAuthorized>
@@ -39,6 +91,25 @@
     [Parameter]
     public int? QuizId { get; set; }
     private QuizModel quizModel = new QuizModel();
+    private int activeQuestionIndex = 0;
+
+    private string activeQuestionClass(int index) => index == activeQuestionIndex ? "" : "hiddenQuestion";
+
+    private async Task SubmitQuiz()
+    {
+        // Implement quiz submission logic here
+        // For now, you can leave this method empty
+    }
+
+    private void PreviousQuestion()
+    {
+        activeQuestionIndex = (activeQuestionIndex - 1 + quizModel.Questions.Count) % quizModel.Questions.Count;
+    }
+
+    private void NextQuestion()
+    {
+        activeQuestionIndex = (activeQuestionIndex + 1) % quizModel.Questions.Count;
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -47,10 +118,11 @@
         {
             var content = await response.Content.ReadAsStringAsync();
             quizModel = JsonConvert.DeserializeObject<QuizModel>(content);
+            Console.WriteLine(JsonConvert.SerializeObject(quizModel));
         }
         else
         {
-        Console.WriteLine("Could not get a response");
+            Console.WriteLine("Could not get a response");
         }
     }
 }

@@ -1,0 +1,26 @@
+.stats {
+  background-color: var(--var-main-darkest);
+  border-color: transparent !important;
+}
+
+.stats i {
+  color: var(--var-soft-blue);
+}
+
+.card-container {
+  background-color: var(--var-card-dark);
+  border-radius: 0.25rem;
+  min-width: 30%;
+  max-width: 50% !important;
+  height: fit-content !important;
+}
+
+.main-content {
+  flex-shrink: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.hiddenQuestion {
+  display: none !important;
+}

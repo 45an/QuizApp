@@ -24,7 +24,7 @@
             }
         </header>
 
-        <div class="container">
+        <div class="container pb-4">
             @if (!string.IsNullOrEmpty(ErrorText))
             {
                 <div class="alert alert-danger" role="alert">
@@ -187,7 +187,7 @@
                                 <div class="form-group d-flex flex-wrap flex-grow-1 w-100">
                                     <FileDropZone class="drop-zone w-100 m-0 p-3">
                                         <InputFile name="file" class="text-light w-100" id=@($"mediaQuestion{question.Index}")
-                                            OnChange="@(async (InputFileChangeEventArgs args) => await OnInputFileChangeQuestion(args, Quiz.Index))"
+                                            OnChange="@(async (InputFileChangeEventArgs args) => await OnInputFileChangeQuestion(args, question.Index))"
                                             accept=".jpg,.jpeg,.png,.gif,.mp4,.mov" maxfilesize="134217728" />
                                     </FileDropZone>
                                 </div>
