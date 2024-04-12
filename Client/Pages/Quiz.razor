@@ -24,7 +24,7 @@
                             @if (question.Media != null && !string.IsNullOrEmpty(question.Media.Path) &&
                             !string.IsNullOrEmpty(question.Media.ContentType))
                             {
-                                <div href="/quiz/@quizModel.Id" class="hero-image-container w-100 align-items-center mb-2">
+                                <div class="hero-image-container w-100 align-items-center mb-2">
                                     @if (question.Media.ContentType.Contains("image"))
                                     {
                                         <img src="@question.Media.Path" class="w-100 hero-image rounded"/>
@@ -33,7 +33,7 @@
                                     {
                                         <VidazorVideo class="w-100 hero-image rounded mb-0"
                                             type="@question.Media.ContentType">
-                                            <source src="@question.Media.Path" controls="false" muted="true">
+                                            <source src="@question.Media.Path">
                                         </VidazorVideo>
                                     }
                                 </div>

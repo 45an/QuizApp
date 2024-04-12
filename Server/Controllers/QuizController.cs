@@ -33,16 +33,26 @@ namespace QuizApp.Server.Controllers
         [HttpGet("getallquizzes")]
         public IActionResult GetAllQuizzes()
         {
-            var quizzes = _context.Quizzes?.Include(q => q.Media).ToList();
-
-            List<QuizView> quizzesView = new List<QuizView>();
-
-            foreach (var quiz in quizzes)
+            try
             {
-                quizzesView.Add(QuizConverter.Convert(quiz));
-            }
+                var quizzes = _context.Quizzes?.Include(q => q.Media).ToList();
 
-            return Ok(quizzesView);
+                List<QuizView> quizzesView = new List<QuizView>();
+
+                foreach (var quiz in quizzes)
+                {
+                    quizzesView.Add(QuizConverter.Convert(quiz));
+                }
+
+                return Ok(quizzesView);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(
+                    500,
+                    $"An error occurred while retrieving all quizzes: {ex.Message}"
+                ); // Returnera en 500 HTTP-statuskod om ett fel inträffade
+            }
         }
 
         [HttpGet("getquiz/{quizId}")]

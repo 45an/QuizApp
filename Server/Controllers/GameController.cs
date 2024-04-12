@@ -40,7 +40,7 @@ namespace QuizApp.Server.Controllers
         {
             var quiz = _context
                 .Quizzes.Include(q => q.User)
-                .Where(x => x.Title == request.Title)
+                .Where(x => x.Id == request.QuizId)
                 .FirstOrDefault();
 
             if (quiz == null)
