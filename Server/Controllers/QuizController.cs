@@ -56,7 +56,7 @@ namespace QuizApp.Server.Controllers
         }
 
         [HttpGet("getquiz/{quizId}")]
-        public ActionResult GetQuiz(int quizId)
+        public ActionResult GetQuizById(int quizId)
         {
             var quiz = _context
                 .Quizzes.Include(q => q.Media != null ? q.Media : null)

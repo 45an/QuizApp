@@ -9,6 +9,7 @@
         public DateTime DateCreated { get; set; }
         public int MaxScore { get; set; }
         public int GamesPlayed { get; set; }
+        public string? UserId { get; set; }
         public List<QuestionView>? Questions { get; set; } = new List<QuestionView>();
     }
 }

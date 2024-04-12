@@ -11,33 +11,101 @@
 
 <AuthorizeView>
     <Authorized>
-        <div class="container pb-4">
-            <header class="navbar w-100 mb-4 p-0 border-bottom border-2 border-secondary text-light">
-                <h1><strong>@quizModel.Title</strong></h1>
-            </header>
+        <div class="container pb-4 mb-4">
+                <div class="card block-container text-light justify-content-between flex-grow-1 mb-4 flex-row">
+                    <div class="main-content stats justify-content-between rounded">
+                        <div class="d-flex flex-row flex-wrap justify-content-between align-items-center py-2 gap-1
+                                    border border-secondary rounded stats">
+                            <header class="navbar w-100 mb-4 p-0 border-bottom border-2 border-secondary text-light text-center justify-content-center">
+                                <h2><strong>@quizModel.Title</strong></h2>
+                            </header>
+                            <div class="d-flex flex-grow-1 align-items-center align-text-center card-attribute w-50">
+                                <i class="fa-solid fa-star"/>
+                                <p class="text-light"> @quizModel.MaxScore</p>
+                            </div>
+                            <div class="d-flex flex-grow-1 align-items-center align-text-center card-attribute w-50">
+                                <i class="fa-solid fa-clock"/>
+                                <p class="text-light"> @quizModel.DateCreated.ToShortDateString()</p>
+                            </div>
+                            <div class="d-flex flex-grow-1 align-items-center align-text-center card-attribute w-50">
+                                <i class="fa-solid fa-arrow-rotate-left"></i>
+                                <p class="text-light"> Played: @quizModel.GamesPlayed</p>
+                            </div>
+                        </div>
+                        <div class="d-flex flex-row flex-wrap card-attribute py-2 gap-2">
+                            <i class"fa-solid fa-user"></i><p class="text-light"> Quiz by <span><a class="text-decoration-none" href="{quizModel.UserId}">@quizModel.UserName</a></span></p>
+                        </div>
+                    </div>
+
+                    @if (quizModel.Media != null && !string.IsNullOrEmpty(quizModel.Media.Path) &&
+                    !string.IsNullOrEmpty(quizModel.Media.ContentType))
+                    {
+                        <div class="hero-image-container w-100 align-items-center mb-0">
+                            @if (quizModel.Media.ContentType.Contains("image"))
+                            {
+                                <img src="@quizModel.Media.Path" class="w-100 hero-image rounded"/>
+                            }
+                            @if (quizModel.Media.ContentType.Contains("video"))
+                            {
+                                <VidazorVideo class="w-100 hero-image rounded mb-0" controls="true" muted="false"
+                                    type="@quizModel.Media.ContentType">
+                                    <source src="@quizModel.Media.Path">
+                                </VidazorVideo>
+                            }
+                        </div>
+                    }
+                </div>
             <form>
-                @foreach (var question in quizModel.Questions)
-                {
-                    <div class="@("card card-container text-light justify-center flex-grow-1 mb-3 " + activeQuestionClass(question.Index))">
-                        <div class="main-content shadow p-2">
-                            <h5 class="pb-2 m-0">@question.Questions</h5>
+
+            @foreach (var question in quizModel.Questions)
+            {
+                <div class="@("card block-container text-light justify-center flex-grow-1 mb-3 flex-column " + activeQuestionClass(question.Index))">
+                    <div class="d-flex flex-row gap-3">
+                        <div class="main-content stats justify-content-between rounded">
+                            <div class="d-flex flex-row flex-wrap justify-content-between align-items-center py-2 gap-1
+                                        border border-secondary rounded stats">
+                                <header class="navbar w-100 mb-4 p-0 border-bottom border-2 border-secondary text-light text-center justify-content-center">
+                                    <h3><strong>@question.Questions</strong></h3>
+                                </header>
+                                <div class="d-flex flex-grow-1 align-items-center align-text-center card-attribute w-50">
+                                    <i class="fa-solid fa-star"/>
+                                    <p class="text-light"> @quizModel.MaxScore</p>
+                                </div>
+                                <div class="d-flex flex-grow-1 align-items-center align-text-center card-attribute w-50">
+                                    <i class="fa-solid fa-clock"/>
+                                    <p class="text-light"> @quizModel.DateCreated.ToShortDateString()</p>
+                                </div>
+                                <div class="d-flex flex-grow-1 align-items-center align-text-center card-attribute w-50">
+                                    <i class="fa-solid fa-arrow-rotate-left"></i>
+                                    <p class="text-light"> Played: @quizModel.GamesPlayed</p>
+                                </div>
+                            </div>
+                            <div class="d-flex flex-row flex-wrap card-attribute py-2 gap-2">
+                                <i class"fa-solid fa-user"></i><p class="text-light"> Quiz by <span><a class="text-decoration-none" href="{quizModel.UserId}">@quizModel.UserName</a></span></p>
+                            </div>
+                        </div>
+
+                        <div class="main-content justify-content-between flex-column w-100">
                             @if (question.Media != null && !string.IsNullOrEmpty(question.Media.Path) &&
                             !string.IsNullOrEmpty(question.Media.ContentType))
                             {
-                                <div class="hero-image-container w-100 align-items-center mb-2">
+                                <div class="image-container w-100 align-items-center mb-2">
                                     @if (question.Media.ContentType.Contains("image"))
                                     {
                                         <img src="@question.Media.Path" class="w-100 hero-image rounded"/>
                                     }
                                     @if (question.Media.ContentType.Contains("video"))
                                     {
-                                        <VidazorVideo class="w-100 hero-image rounded mb-0"
+                                        <VidazorVideo class="w-100 image rounded mb-0" controls="true" muted="false"
                                             type="@question.Media.ContentType">
                                             <source src="@question.Media.Path">
                                         </VidazorVideo>
                                     }
                                 </div>
                             }
+                        </div>
+                    </div>
+                    <div class="main-content flex-row w-100">
                             @if (question.MultipleChoice)
                             {
                                 <div class="d-flex flex-row w-100 flex-grow-2 gap-1 flex-nowrap justify-contents-center form-group">
@@ -68,12 +136,12 @@
                                 <input type="text" class="form-control mb-3" placeholder="Your Answer">
                             }
                         </div>
-                    </div>
-                }
-                <div class="btn-group" role="group" aria-label="Basic outlined example">
-                    <button type="button" class="btn btn-outline-primary" @onclick="PreviousQuestion"><i class="fas fa-arrow-left"></i> Previous</button>
-                    <button type="submit" class="btn btn-outline-primary" @onclick="SubmitQuiz">Submit</button>
-                    <button type="button" class="btn btn-outline-primary" @onclick="NextQuestion">Next <i class="fas fa-arrow-right"></i></button>
+                </div>
+            }
+                <div class="btn-group d-flex flex-row w-100 gap-1 flex-nowrap justify-contents-center text-center" role="group" aria-label="Basic outlined example">
+                    <button type="button" class="btn btn-outline-primary form-check w-33 justify-contents-center text-center mx-auto" @onclick="PreviousQuestion"><i class="fas fa-arrow-left"></i></button>
+                    <button type="submit" class="btn btn-outline-primary form-check w-33 justify-contents-center text-center mx-auto" @onclick="SubmitQuiz">Submit</button>
+                    <button type="button" class="btn btn-outline-primary form-check w-33 justify-contents-center text-center mx-auto" @onclick="NextQuestion"><i class="fas fa-arrow-right"></i></button>
                 </div>
             </form>
         </div>

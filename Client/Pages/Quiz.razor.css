@@ -5,14 +5,26 @@
 
 .stats i {
   color: var(--var-soft-blue);
+  width: fit-content !important;
 }
 
 .card-container {
   background-color: var(--var-card-dark);
   border-radius: 0.25rem;
   min-width: 30%;
-  max-width: 50% !important;
+  max-width: 100% !important;
   height: fit-content !important;
+}
+
+.block-container {
+  background-color: var(--var-card-dark);
+  border-radius: 0.25rem;
+  min-width: 30%;
+  max-width: 100% !important;
+  height: fit-content !important;
+  /* margin: 2em; */
+  padding: 1em;
+  gap: 1rem;
 }
 
 .main-content {
@@ -21,6 +33,52 @@
   flex-direction: column;
 }
 
+.hero-image-container {
+  position: relative;
+  display: block;
+  height: fit-content;
+  max-height: 35vh;
+}
+
+.image-container {
+  position: relative;
+  display: block;
+  height: fit-content;
+  max-height: 45vh;
+}
+
+.hero-image {
+  aspect-ratio: initial;
+  object-fit: contain !important;
+  max-height: inherit;
+  max-width: inherit;
+}
+
 .hiddenQuestion {
   display: none !important;
+}
+
+.attribution {
+  margin: 0 auto;
+  width: 100%;
+  text-align: center;
+  padding: 1.5em 0 4em 0;
+  color: #343a40;
+  /* Bootstrap's text-dark color */
+}
+
+.attribution a {
+  color: #007bff;
+  /* Bootstrap's primary color */
+}
+
+.card-attribute i {
+  margin-left: 0.5rem;
+}
+
+.card-attribute p {
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+  margin-bottom: 0;
+  font-weight: 400;
 }

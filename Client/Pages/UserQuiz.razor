@@ -1,4 +1,4 @@
-@page "/userQuiz/{UserId:int}"
+@page "/userQuiz/{UserId}"
 
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
@@ -17,7 +17,7 @@
             <h1><strong>Here are your Quizzes!</strong></h1>
         </header>
 
-        <div class="container">
+        <div class="container pb-4 mb-4">
             <div class="d-flex flex-row flex-shrink flex-wrap w-100 p-0 m-0 mb-4 gap-4 justify-content-center">
             @foreach (var quiz in quizModels)
             {
@@ -37,6 +37,9 @@
 
 
 @code {
+    [Parameter]
+    public string? UserId { get; set; }
+
     private List<QuizModel> quizModels = new List<QuizModel>();
     private bool isAuthenticated;
 
@@ -50,7 +53,7 @@
 
         if (isAuthenticated)
         {
-            var response = await httpClient.GetAsync("api/profile/myquizzes");
+            var response = await httpClient.GetAsync($"api/profile/quizzes/{UserId}");
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();

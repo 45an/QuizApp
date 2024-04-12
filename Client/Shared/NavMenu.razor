@@ -26,8 +26,8 @@
 
                 <Authorized>
                 <div class="nav-item px-3">
-                    @if(gameModels != null && gameModels[0].UserId != null){
-                        <NavLink class="nav-link" href="@("userQuiz/" + gameModels[0].UserId)" @onclick="ToggleNavMenu">
+                    @if(quizModels != null && quizModels[0].UserId != null){
+                        <NavLink class="nav-link" href="@("userQuiz/" + quizModels[0].UserId)" @onclick="ToggleNavMenu">
                             <i class="fa-solid fa-user" style="width: 2rem;" aria-hidden="true"></i><p class="@NavMenuCssClass list-item-text p-0 m-0"> Your Quiz's</p>
                         </NavLink>
                     } else {
@@ -107,7 +107,7 @@
         ToggleNavMenu();
     }
 
-    private List<GameModel> gameModels = new List<GameModel>();
+    private List<QuizModel> quizModels = new List<QuizModel>();
     private bool isAuthenticated;
 
     [CascadingParameter]
@@ -120,11 +120,11 @@
 
         if (isAuthenticated)
         {
-            var response = await httpClient.GetAsync("api/profile/mygames");
+            var response = await httpClient.GetAsync("api/profile/myquizzes");
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
-                gameModels = JsonConvert.DeserializeObject<List<GameModel>>(content);
+                quizModels = JsonConvert.DeserializeObject<List<QuizModel>>(content);
             }
         }
     }

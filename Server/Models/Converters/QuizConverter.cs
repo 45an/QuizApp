@@ -18,6 +18,7 @@
                 GamesPlayed = quiz.GamesPlayed,
                 DateCreated = quiz.DateCreated,
                 MaxScore = quiz.MaxScore,
+                UserId = quiz.UserId,
             };
 
             var _questions = new List<QuestionView>();

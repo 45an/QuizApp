@@ -29,7 +29,7 @@ namespace QuizApp.Server.Controllers
         }
 
         [HttpGet("mygames")]
-        public IActionResult GetUsersGame()
+        public IActionResult GetUsersGames()
         {
             try
             {
@@ -62,6 +62,33 @@ namespace QuizApp.Server.Controllers
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
                 var userQuizzes = await _context
                     .Quizzes.Where(q => q.UserId == userId) // Filtrera quiz som är skapade av användaren
+                    .ToListAsync();
+
+                return Ok(userQuizzes);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(
+                    500,
+                    $"An error occurred while retrieving user created games: {ex.Message}"
+                ); // Returnera en 500 HTTP-statuskod om ett fel inträffade
+            }
+        }
+
+        [HttpGet("quizzes/{UserId}")]
+        public async Task<IActionResult> GetCreatedQuizzes(string UserId)
+        {
+            try
+            {
+                var user = await _userManager.FindByIdAsync(UserId);
+
+                if (user == null)
+                {
+                    return NotFound($"User with ID {UserId} not found.");
+                }
+
+                var userQuizzes = await _context
+                    .Quizzes.Where(q => q.UserId == user.Id)
                     .ToListAsync();
 
                 return Ok(userQuizzes);
