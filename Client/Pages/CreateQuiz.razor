@@ -16,15 +16,15 @@
         <header class="navbar w-100 mb-4 p-0 border-bottom border-2 border-secondary text-light">
             @if (Quiz.Title != null && Quiz.Title.Length > 0)
             {
-                <h2><strong>Create A New Quiz - @Quiz.Title</strong></h2>
+                <h1><strong>Create A New Quiz - @Quiz.Title</strong></h1>
             }
             else
             {
-                <h2><strong>Create A New Quiz</strong></h2>
+                <h1><strong>Create A New Quiz</strong></h1>
             }
         </header>
 
-        <div>
+        <div class="container pb-4 mb-4">
             @if (!string.IsNullOrEmpty(ErrorText))
             {
                 <div class="alert alert-danger" role="alert">
@@ -187,7 +187,7 @@
                                 <div class="form-group d-flex flex-wrap flex-grow-1 w-100">
                                     <FileDropZone class="drop-zone w-100 m-0 p-3">
                                         <InputFile name="file" class="text-light w-100" id=@($"mediaQuestion{question.Index}")
-                                            OnChange="@(async (InputFileChangeEventArgs args) => await OnInputFileChangeQuestion(args, Quiz.Index))"
+                                            OnChange="@(async (InputFileChangeEventArgs args) => await OnInputFileChangeQuestion(args, question.Index))"
                                             accept=".jpg,.jpeg,.png,.gif,.mp4,.mov" maxfilesize="134217728" />
                                     </FileDropZone>
                                 </div>
@@ -234,9 +234,7 @@
     <NotAuthorized>
         <div class="alert alert-warning text-light card-container" role="alert">
             <p>You need to be authenticated to access this page.</p>
-            <p>Please <a
-                    href="/Identity/Account/Login?ReturnUrl=%2Fconnect%2Fauthorize%2Fcallback%3Fclient_id%3DQuizApp.Client%26redirect_uri%3Dhttps%253A%252F%252Flocalhost%253A7086%252Fauthentication%252Flogin-callback%26response_type%3Dcode%26scope%3DQuizApp.ServerAPI%2520openid%2520profile%26state%3De2b332ba6bdf48299cb8a128fb890032%26code_challenge%3DfySN4TgaMpR3Vt9eiDfEhu-aIlV0CFM7C2ymsILeDEg%26code_challenge_method%3DS256%26response_mode%3Dquery">log
-                    in</a> to continue.</p>
+            <p>Please <a href="/Authentication/Login">log in</a> to continue.</p>
             <p>If you don't have an account, you can <a
                     href="/Identity/Account/Register?returnUrl=%2Fauthentication%2Flogin">register</a> for one.</p>
         </div>

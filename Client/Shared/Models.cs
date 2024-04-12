@@ -2,6 +2,15 @@ using Microsoft.AspNetCore.Components.Forms;
 
 namespace QuizApp.Client.Shared.Models
 {
+    class GameModel
+    {
+        public int Id { get; set; }
+        public int QuizId { get; set; }
+        public QuizModel? QuizModel { get; set; }
+        public string? UserId { get; set; }
+        public int Score { get; set; }
+    }
+
     class QuizModel
     {
         public int Id { get; set; }
@@ -38,7 +47,7 @@ namespace QuizApp.Client.Shared.Models
         public int Time { get; set; }
 
         public bool MultipleChoice { get; set; }
-        public virtual List<MockModel> MocksAnswers { get; set; }
+        public List<MockModel> MocksAnswers { get; set; } = new List<MockModel>();
 
         public QuestionModel()
         {

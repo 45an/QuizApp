@@ -14,7 +14,7 @@
             <h1><strong>Welcome To the Quiz Game!</strong></h1>
         </header>
 
-        <div class="container">
+        <div class="container pb-4 mb-4">
             <div class="d-flex flex-row flex-shrink flex-wrap w-100 p-0 m-0 mb-4 gap-4 justify-content-center">
             @foreach (var quiz in quizModels)
             {
@@ -24,8 +24,9 @@
         </div
     </Authorized>
     <NotAuthorized>
-        <div class="container">
-            <div class="alert alert-warning text-light card-container" role="alert">
+        <div class="container pb-4 mb-4">
+            <div class="d-flex flex-row flex-shrink flex-wrap w-100 p-0 m-0 mb-4 gap-4 justify-content-center">
+            <div class="alert alert-warning text-light card-container shadow mb-0" role="alert">
                 <div class="col w-100">
                     <h1><strong>Welcome to Quiz App!</strong></h1>
 
@@ -66,7 +67,6 @@
                     <a class="text-decoration-none" href="https://github.com/45an/QuizApp"><h2><i class="fa-brands fa-github"></i> Visit the GitHub!</h2></a>
                 </div>
             </div>
-            <div class="d-flex flex-row flex-shrink flex-wrap w-100 p-0 m-0 mb-4 gap-4 justify-content-center">
                 <QuizCard quizId="null" quizTemplate="true" />
                 <QuizCard quizId="null" quizTemplate="true" />
                 <QuizCard quizId="null" quizTemplate="true" />
@@ -83,18 +83,24 @@
 
 @code {
     private List<QuizModel> quizModels = new List<QuizModel>();
+    private bool isAuthenticated;
+
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        var response = await httpClient.GetAsync("api/quiz/getallquizzes");
-        if (response.IsSuccessStatusCode)
+        var authState = await authenticationStateTask;
+        isAuthenticated = authState.User.Identity.IsAuthenticated;
+
+        if (isAuthenticated)
         {
-            var content = await response.Content.ReadAsStringAsync();
-            quizModels = JsonConvert.DeserializeObject<List<QuizModel>>(content);
-        }
-        else
-        {
-            // Handle error
+            var response = await httpClient.GetAsync("api/quiz/getallquizzes");
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                quizModels = JsonConvert.DeserializeObject<List<QuizModel>>(content);
+            }
         }
     }
 }

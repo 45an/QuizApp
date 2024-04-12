@@ -28,7 +28,7 @@
         </a>
     }
     @if (quizTemplate) {
-    <div class="main-content p-2">
+    <div class="main-content shadow p-2">
         <h1 class="pb-2 m-0 border-bottom border-secondary">Title</h1>
         <div class="d-flex flex-row flex-wrap justify-content-between align-items-center py-2 gap-1">
             <div class="d-flex flex-grow align-items-center align-text-center card-attribute">
@@ -67,7 +67,7 @@
             </div>
         </div>
         <div class="d-flex flex-row flex-wrap card-attribute py-2 gap-2">
-            <p class="text-light">Quiz by <span><a class="text-decoration-none" href="{quizModel.UserId}">@quizModel.UserName</a></span></p>
+            <p class="text-light">Quiz by <span><a class="text-decoration-none" href="@("userQuiz/" + quizModel.UserId)">@quizModel.UserName</a></span></p>
         </div>
     </div>
     }
@@ -75,15 +75,13 @@
 
 @code {
     [Parameter]
-    public int? quizId { get; set; }
-    [Parameter]
     public bool quizTemplate { get; set; }
-
+    [Parameter]
+    public int? quizId { get; set; }
     private QuizModel quizModel = new QuizModel();
 
     protected override async Task OnInitializedAsync()
     {
-        if (quizId == null) { return; }
         var response = await httpClient.GetAsync($"api/quiz/getquiz/{quizId}");
         if (response.IsSuccessStatusCode)
         {
@@ -92,7 +90,7 @@
         }
         else
         {
-            // Handle error
+        Console.WriteLine("Could not get a response" + response);
         }
     }
 }

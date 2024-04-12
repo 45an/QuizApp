@@ -4,6 +4,11 @@
     {
         public static QuizView Convert(Quiz quiz)
         {
+            if (quiz == null)
+            {
+                throw new ArgumentNullException(nameof(quiz), "Quiz cannot be null.");
+            }
+
             var quizView = new QuizView
             {
                 Id = quiz.Id,
@@ -13,6 +18,7 @@
                 GamesPlayed = quiz.GamesPlayed,
                 DateCreated = quiz.DateCreated,
                 MaxScore = quiz.MaxScore,
+                UserId = quiz.UserId,
             };
 
             var _questions = new List<QuestionView>();

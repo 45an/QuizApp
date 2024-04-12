@@ -4,6 +4,11 @@
     {
         public static MediaView Convert(Media media)
         {
+            if (media == null)
+            {
+                throw new ArgumentNullException(nameof(media), "Media cannot be null.");
+            }
+
             var mediaView = new MediaView
             {
                 Guid = media.MediaGuid,

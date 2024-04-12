@@ -1,24 +1,64 @@
-@page "/userQuiz"
+@page "/userQuiz/{UserId}"
 
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @using QuizApp.Client.Shared.Models
 
+@inject IAccessTokenProvider AccessTokenProvider
+@inject HttpClient httpClient
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+
 <PageTitle>User Quiz</PageTitle>
 
 <AuthorizeView>
     <Authorized>
-        <div class="container">
-            <div class="d-flex flex-row flex-wrap flex-grow-1 gap-4 mg-0">
+        <header class="navbar w-100 mb-4 p-0 border-bottom border-2 border-secondary text-light">
+            <h1><strong>Here are your Quizzes!</strong></h1>
+        </header>
 
+        <div class="container pb-4 mb-4">
+            <div class="d-flex flex-row flex-shrink flex-wrap w-100 p-0 m-0 mb-4 gap-4 justify-content-center">
+            @foreach (var quiz in quizModels)
+            {
+                <QuizCard quizId="@quiz.Id" quizTemplate="false" />
+            }
             </div>
-        </div>
+        </div
     </Authorized>
     <NotAuthorized>
         <div class="alert alert-warning" role="alert">
-            <p>You need to be authenticated to access this page.</p>
-            <p>Please <a href="/Identity/Account/Login?ReturnUrl=%2Fconnect%2Fauthorize%2Fcallback%3Fclient_id%3DQuizApp.Client%26redirect_uri%3Dhttps%253A%252F%252Flocalhost%253A7086%252Fauthentication%252Flogin-callback%26response_type%3Dcode%26scope%3DQuizApp.ServerAPI%2520openid%2520profile%26state%3De2b332ba6bdf48299cb8a128fb890032%26code_challenge%3DfySN4TgaMpR3Vt9eiDfEhu-aIlV0CFM7C2ymsILeDEg%26code_challenge_method%3DS256%26response_mode%3Dquery">log in</a> to continue.</p>
+            <p>You need to be authenticated to access this quiz.</p>
+            <p>Please <a href="authentication/login">log in</a> to participate.</p>
             <p>If you don't have an account, you can <a href="/Identity/Account/Register?returnUrl=%2Fauthentication%2Flogin">register</a> for one.</p>
         </div>
     </NotAuthorized>
 </AuthorizeView>
+
+
+@code {
+    [Parameter]
+    public string? UserId { get; set; }
+
+    private List<QuizModel> quizModels = new List<QuizModel>();
+    private bool isAuthenticated;
+
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await authenticationStateTask;
+        isAuthenticated = authState.User.Identity.IsAuthenticated;
+
+        if (isAuthenticated)
+        {
+            var response = await httpClient.GetAsync($"api/profile/quizzes/{UserId}");
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                quizModels = JsonConvert.DeserializeObject<List<QuizModel>>(content);
+            }
+        }
+    }
+}

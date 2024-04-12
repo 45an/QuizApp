@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Exchange.WebServices.Data;
 using QuizApp.Server.Data;
 using QuizApp.Server.Models;
+using QuizApp.Server.Models.ViewModels;
 
 namespace QuizApp.Server.Controllers
 {
@@ -27,11 +29,29 @@ namespace QuizApp.Server.Controllers
         }
 
         [HttpGet("mygames")]
-        public async Task<IActionResult> GetUsersGame()
+        public IActionResult GetUsersGames()
         {
-            var user = await _userManager.GetUserAsync(User);
-            var games = _context.Games.Where(g => g.UserId == user.Id).ToList();
-            return Ok(games);
+            try
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var games = _context.Games.Where(g => g.UserId == userId).ToList();
+
+                List<GameView> gamesView = new List<GameView>();
+
+                foreach (var game in games)
+                {
+                    gamesView.Add(GameConverter.Convert(game));
+                }
+
+                return Ok(gamesView);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(
+                    500,
+                    $"An error occurred while retrieving user games: {ex.Message}"
+                ); // Returnera en 500 HTTP-statuskod om ett fel inträffade
+            }
         }
 
         [HttpGet("myquizzes")]
@@ -39,9 +59,36 @@ namespace QuizApp.Server.Controllers
         {
             try
             {
-                var userId = _userManager.GetUserId(User); // Hämta användarens ID
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
                 var userQuizzes = await _context
                     .Quizzes.Where(q => q.UserId == userId) // Filtrera quiz som är skapade av användaren
+                    .ToListAsync();
+
+                return Ok(userQuizzes);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(
+                    500,
+                    $"An error occurred while retrieving user created games: {ex.Message}"
+                ); // Returnera en 500 HTTP-statuskod om ett fel inträffade
+            }
+        }
+
+        [HttpGet("quizzes/{UserId}")]
+        public async Task<IActionResult> GetCreatedQuizzes(string UserId)
+        {
+            try
+            {
+                var user = await _userManager.FindByIdAsync(UserId);
+
+                if (user == null)
+                {
+                    return NotFound($"User with ID {UserId} not found.");
+                }
+
+                var userQuizzes = await _context
+                    .Quizzes.Where(q => q.UserId == user.Id)
                     .ToListAsync();
 
                 return Ok(userQuizzes);

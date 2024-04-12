@@ -33,23 +33,37 @@ namespace QuizApp.Server.Controllers
         [HttpGet("getallquizzes")]
         public IActionResult GetAllQuizzes()
         {
-            var quizzes = _context.Quizzes?.Include(q => q.Media).ToList();
-
-            List<QuizView> quizzesView = new List<QuizView>();
-
-            foreach (var quiz in quizzes)
+            try
             {
-                quizzesView.Add(QuizConverter.Convert(quiz));
-            }
+                var quizzes = _context.Quizzes?.Include(q => q.Media).ToList();
 
-            return Ok(quizzesView);
+                List<QuizView> quizzesView = new List<QuizView>();
+
+                foreach (var quiz in quizzes)
+                {
+                    quizzesView.Add(QuizConverter.Convert(quiz));
+                }
+
+                return Ok(quizzesView);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(
+                    500,
+                    $"An error occurred while retrieving all quizzes: {ex.Message}"
+                ); // Returnera en 500 HTTP-statuskod om ett fel inträffade
+            }
         }
 
         [HttpGet("getquiz/{quizId}")]
-        public ActionResult GetQuiz(int quizId)
+        public ActionResult GetQuizById(int quizId)
         {
             var quiz = _context
-                .Quizzes.Include(q => q.Media)
+                .Quizzes.Include(q => q.Media != null ? q.Media : null)
+                .Include(q => q.Questions != null ? q.Questions : null)
+                .ThenInclude(q => q.Media != null ? q.Media : null)
+                .Include(q => q.Questions != null ? q.Questions : null)
+                .ThenInclude(q => q.MocksAnswers != null ? q.MocksAnswers : null)
                 .Where(t => t.Id == quizId)
                 .FirstOrDefault();
 
