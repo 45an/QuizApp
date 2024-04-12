@@ -41,7 +41,7 @@ QuizApp is a comprehensive Blazor application designed for interactive quiz mana
 Before running the application, make sure you have the following:
 
     - .NET SDK installed
-    - SQL Server database with a connection string configured in the appsettings.json file
+    -  SQL Server database with a connection string configured in the appsettings.json file
 
 ## ⚙️ Installation
 
@@ -237,9 +237,6 @@ These endpoints facilitate the management of quizzes, including creation and ret
 ## 📑 API Endpoints and Data
 
 The QuizApp API provides the following endpoints and returns the associated data:
-
-
-Sure, here are the API calls for each controller in tabular format:
 
 **GameController:**
 
