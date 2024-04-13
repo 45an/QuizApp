@@ -48,17 +48,6 @@ namespace QuizApp.Client.Shared.Models
 
         public bool MultipleChoice { get; set; }
         public List<MockModel> MocksAnswers { get; set; } = new List<MockModel>();
-
-        public QuestionModel()
-        {
-            // Initialize MocksAnswers with two MockModel instances, each with an empty MockAnswer string
-            MocksAnswers = new List<MockModel>
-            {
-                new MockModel { MockAnswer = "" },
-                new MockModel { MockAnswer = "" }
-            };
-            //Media = new MediaModel();
-        }
     }
 
     class MockModel
