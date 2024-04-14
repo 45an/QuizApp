@@ -52,7 +52,6 @@ namespace QuizApp.Client.Shared.Models
         public virtual MediaModel? Media { get; set; }
         public IBrowserFile File { get; set; }
         public int Time { get; set; }
-
         public bool MultipleChoice { get; set; }
         public List<MockModel> MocksAnswers { get; set; } = new List<MockModel>();
     }

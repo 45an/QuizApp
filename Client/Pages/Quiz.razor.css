@@ -98,8 +98,16 @@
 }
 
 .activePill {
-  border: 2px solid var(--var-line-dark);
+  border: 3px solid var(--var-line-dark) !important;
   box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.invalidPill {
+  border: 1px solid red !important;
+}
+
+.activePill.invalidPill {
+  border: 3px solid red !important;
 }
 
 @media (max-width: 641px) {

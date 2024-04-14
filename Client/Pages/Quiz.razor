@@ -84,30 +84,20 @@
                                 {
                                     <div class="d-flex flex-column w-100 flex-grow-2 gap-1 flex-nowrap justify-contents-center form-group">
                                         @foreach (var mockAnswer in question.MocksAnswers) {
-                                            @if (string.IsNullOrEmpty(mockAnswer.MockAnswer))
-                                            {
-                                                <div class="d-flex flex-grow-1 w-25 form-check align-items-center">
-                                                    <input class="form-check-input me-2" type="radio" name="@($"answer-{question.Id}")" id="@($"answer-{question.Id}-{mockAnswer.Id}")" required>
-                                                    <label class="form-check-label text-white" for="@($"answer-{question.Id}-{mockAnswer.Id}")">
-                                                        <p class="p-0 m-0">asdwa wdaw dawd awdwad awd</p>
-                                                    </label>
-                                                </div>
-                                            }
-                                            else
-                                            {
-                                                <div class="d-flex flex-grow-1 w-25 form-check align-items-center">
-                                                    <input class="form-check-input me-2" type="radio" name="@($"answer-{question.Id}")" id="@($"answer-{question.Id}-{mockAnswer.Id}")" required>
-                                                    <label class="form-check-label text-white" for="@($"answer-{question.Id}-{mockAnswer.Id}")">
-                                                        <p class="p-0 m-0">@mockAnswer.MockAnswer</p>
-                                                    </label>
-                                                </div>
-                                            }
+                                            <div class="d-flex flex-grow-1 form-check align-items-center">
+                                                <input type="radio" @onclick="() => HandleValidInputQuestion(question.Id, mockAnswer.Id.ToString())" class="form-check-input me-2" name="@($"answer-{question.Id}")" id="@($"answer-{question.Id}-{mockAnswer.Id}")" required/>
+                                                @* <input class="form-check-input me-2" type="radio" name="@($"answer-{question.Id}")" id="@($"answer-{question.Id}-{mockAnswer.Id}")" required> *@
+                                                <label class="form-check-label text-white" for="@($"answer-{question.Id}-{mockAnswer.Id}")">
+                                                    <p class="p-0 m-0">@mockAnswer.MockAnswer</p>
+                                                </label>
+                                            </div>
                                         }
                                     </div>
                                 }
                                 else
                                 {
-                                    <input type="text" class="form-control mb-3" placeholder="Your Answer" name="@($"answer-{question.Id}")" id="@($"answer-{question.Id}")" required>
+                                    <input type="text" @bind="UserInput[question.Id]" @oninput="e => HandleValidInputQuestion(question.Id, e.Value.ToString())" class="form-control mb-3" placeholder="Your Answer" name="@($"answer-{question.Id}")" id="@($"answer-{question.Id}")" required/>
+                                    @* <input type="text" class="form-control mb-3" placeholder="Your Answer" name="@($"answer-{question.Id}")" id="@($"answer-{question.Id}")" required> *@
                                 }
                             </div>
                         </div>
@@ -134,7 +124,7 @@
                 <div class="question-pills d-flex flex-row justify-content-center align-items-center pb-3">
                     @foreach (var question in quizModel.Questions)
                     {
-                        <div class="@("question-pill mx-1 rounded " + activeQuestionPillClass(question.Id))" @onclick="() => SetActiveQuestion(question.Id)">
+                        <div class="@($"question-pill mx-1 rounded {pillClasses[question.Id]}")" @onclick="() => SetActiveQuestion(question.Id)">
                             @question.Id
                         </div>
                     }
@@ -171,10 +161,55 @@
     private bool IsNextDisabled => quizModel.Questions.Count > 0 && activeQuestionId == quizModel.Questions.Max(q => q.Id);
     private string activeQuestionClass(int questionId) => questionId == activeQuestionId ? "" : "hiddenQuestion";
     private string activeQuestionPillClass(int questionId) => questionId == activeQuestionId ? "activePill" : "";
+    private Dictionary<int, string> pillClasses = new Dictionary<int, string>();
+    private Dictionary<int, string> UserInput = new Dictionary<int, string>();
+
+    private string GetPillClass(int questionId)
+    {
+        var validInput = IsInputValid(questionId);
+        // Check if the question's input is required and not valid
+        if (validInput)
+        {
+            return activeQuestionPillClass(questionId);
+        }
+        else
+        {
+            return activeQuestionPillClass(questionId) + " invalidPill";
+        }
+    }
+
+    private bool IsInputValid(int questionId)
+    {
+        // Find the question corresponding to the provided questionId
+        var question = quizModel.Questions.FirstOrDefault(q => q.Id == questionId);
+        if (question == null)
+        {
+            return false;
+        }
+
+        return !string.IsNullOrWhiteSpace(UserInput[questionId]);
+    }
+
+    private void HandleValidInputQuestion(int questionId, string value)
+    {
+        UserInput[questionId] = value;
+        pillClasses[questionId] = GetPillClass(questionId);
+    }
 
     private void SetActiveQuestion(int questionId)
     {
+        // Remove activePill class from all question pills
+        foreach (var key in pillClasses.Keys.ToList())
+        {
+            pillClasses[key] = activeQuestionPillClass(questionId);
+            if (!IsInputValid(key))
+            {
+                pillClasses[key] += " invalidPill"; // Add invalidPill class to inactive pills with no input
+            }
+        }
+
         activeQuestionId = questionId;
+        pillClasses[questionId] = GetPillClass(questionId);
     }
 
     private async Task SubmitQuiz()
@@ -203,12 +238,23 @@
 
     protected override async Task OnInitializedAsync()
     {
+        await GetQuiz();
+        await GetMocks();
+
+        foreach (var question in quizModel.Questions)
+        {
+            UserInput[question.Id] = "";
+            pillClasses[question.Id] = GetPillClass(question.Id);
+        }
+    }
+
+    private async Task GetQuiz() {
         var response = await httpClient.GetAsync($"api/quiz/getquiz/{QuizId}");
         if (response.IsSuccessStatusCode)
         {
             var content = await response.Content.ReadAsStringAsync();
             quizModel = JsonConvert.DeserializeObject<QuizModel>(content);
-            Console.WriteLine(JsonConvert.SerializeObject(quizModel));
+            //Console.WriteLine(JsonConvert.SerializeObject(quizModel));
             if (quizModel.Questions.Any())
             {
                 activeQuestionId = quizModel.Questions.First().Id;
@@ -217,6 +263,37 @@
         else
         {
             Console.WriteLine("Could not get a response");
+        }
+    }
+
+    private async Task GetMocks() {
+        List<MockModel> newMocksList = new List<MockModel>();
+
+        foreach (var question in quizModel.Questions) {
+            if (question.MultipleChoice)
+            {
+                var response = await httpClient.GetAsync($"api/quiz/getmocks/{question.Id}");
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    var mockList = JsonConvert.DeserializeObject<List<MockModel>>(content);
+
+                    // Check if the deserialized list is not null and has elements
+                    if (mockList != null && mockList.Any())
+                    {
+                        // Add each mock model to the question's list of mock answers
+                        foreach (var mockModel in mockList)
+                        {
+                            question.MocksAnswers.Add(mockModel);
+                        }
+                    }
+                    Console.WriteLine(JsonConvert.SerializeObject(mockList));
+                }
+                else
+                {
+                    Console.WriteLine("Could not get a response");
+                }
+            }
         }
     }
 }

@@ -76,6 +76,26 @@ namespace QuizApp.Server.Controllers
             return Ok(quizView);
         }
 
+        [HttpGet("getmocks/{questionId}")]
+        public ActionResult GetMockByQuestionId(int questionId)
+        {
+            var mocks = _context.Mocks.Where(m => m.QuestionId == questionId).ToList();
+
+            if (mocks == null)
+            {
+                return NotFound(new { Message = "Mocks could not be found." });
+            }
+
+            List<MockView> mocksView = new List<MockView>();
+
+            foreach (var mock in mocks)
+            {
+                mocksView.Add(MockConverter.Convert(mock));
+            }
+
+            return Ok(mocksView);
+        }
+
         [HttpPost("addquiz")]
         public async Task<ActionResult> AddQuiz([FromBody] Quiz quizModel)
         {
