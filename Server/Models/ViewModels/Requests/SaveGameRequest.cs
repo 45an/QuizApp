@@ -2,7 +2,7 @@
 {
     public class SaveGameRequest
     {
-        public int QuizId { get; set; }
+        public Answer Answer { get; set; }
         public int Score { get; set; }
     }
 }

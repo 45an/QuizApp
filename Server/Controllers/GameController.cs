@@ -38,26 +38,42 @@ namespace QuizApp.Server.Controllers
         [HttpPost("savegame")]
         public IActionResult SaveGame([FromBody] SaveGameRequest request)
         {
-            var quiz = _context
-                .Quizzes.Include(q => q.User)
-                .Where(x => x.Id == request.QuizId)
+            var answer = _context
+                .Answer.Include(a => a.User)
+                .Where(a => a.Id == request.Answer.Id)
                 .FirstOrDefault();
 
-            if (quiz == null)
+            if (answer == null)
+            {
+                return NotFound();
+            }
+
+            var originalQuiz = _context
+                .Quizzes.Include(q => q.User)
+                .Where(x => x.Id == answer.OriginalQuiz.Id)
+                .FirstOrDefault();
+
+            var answerQuiz = _context
+                .Quizzes.Include(q => q.User)
+                .Where(x => x.Id == answer.AnswerQuiz.Id)
+                .FirstOrDefault();
+
+            if (originalQuiz == null || answerQuiz == null)
             {
                 return NotFound();
             }
 
             var game = new Game()
             {
-                QuizId = quiz.Id,
+                Answer = answer,
                 UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value,
                 Score = request.Score,
             };
 
             _context.Games.Add(game);
 
-            quiz.GamesPlayed += 1;
+            answerQuiz.GamesPlayed += 1;
+            originalQuiz.GamesPlayed += 1;
 
             _context.SaveChanges();
 
