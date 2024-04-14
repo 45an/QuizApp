@@ -304,9 +304,9 @@ Make sure to update the connection string to match your SQL Server database conf
 
 ## 👨‍💻 Developer Team
 
-- [Ilyas Kaya](https://github.com/AkiVonAkira)
 - [Muse Yusuf](https://github.com/45an)
+- [Ilyas Kaya](https://github.com/AkiVonAkira)
 - [Caius Matei](https://github.com/CaiusMatei)
 - [Mohib Javed](https://github.com/Chasacademy-Mohib-Javed)
-- [Bosko Derikonja](https://github.com/boskojr)
+
 
