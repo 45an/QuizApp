@@ -2,11 +2,18 @@ using Microsoft.AspNetCore.Components.Forms;
 
 namespace QuizApp.Client.Shared.Models
 {
+    class AnswerModel
+    {
+        public int Id { get; set; }
+        public virtual QuizModel? OriginalQuiz { get; set; }
+        public virtual QuizModel? AnswerQuiz { get; set; }
+        public string? UserId { get; set; }
+    }
+
     class GameModel
     {
         public int Id { get; set; }
-        public int QuizId { get; set; }
-        public QuizModel? QuizModel { get; set; }
+        public int? AnswerId { get; set; }
         public string? UserId { get; set; }
         public int Score { get; set; }
     }
