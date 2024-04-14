@@ -12,24 +12,26 @@
 <AuthorizeView>
     <Authorized>
         <div class="container pb-4 mb-4">
-                <div class="card block-container text-light justify-content-between flex-grow-1 mb-4 flex-row">
+                <div class="card block-container text-light justify-content-between flex-grow-1 mb-4 flex-row mediaColumn">
                     <div class="main-content stats justify-content-between rounded">
                         <div class="d-flex flex-row flex-wrap justify-content-between align-items-center py-2 gap-1
                                     border border-secondary rounded stats">
                             <header class="navbar w-100 mb-4 p-0 border-bottom border-2 border-secondary text-light text-center justify-content-center">
                                 <h2><strong>@quizModel.Title</strong></h2>
                             </header>
-                            <div class="d-flex flex-grow-1 align-items-center align-text-center card-attribute w-50">
-                                <i class="fa-solid fa-star"/>
-                                <p class="text-light"> @quizModel.MaxScore</p>
-                            </div>
-                            <div class="d-flex flex-grow-1 align-items-center align-text-center card-attribute w-50">
-                                <i class="fa-solid fa-clock"/>
-                                <p class="text-light"> @quizModel.DateCreated.ToShortDateString()</p>
-                            </div>
-                            <div class="d-flex flex-grow-1 align-items-center align-text-center card-attribute w-50">
-                                <i class="fa-solid fa-arrow-rotate-left"></i>
-                                <p class="text-light"> Played: @quizModel.GamesPlayed</p>
+                            <div class="stats-container d-flex flex-column w-100 flex-wrap">
+                                <div class="d-flex flex-grow-1 align-items-center align-text-center card-attribute w-50">
+                                    <i class="fa-solid fa-star"/>
+                                    <p class="text-light"> @quizModel.MaxScore</p>
+                                </div>
+                                <div class="d-flex flex-grow-1 align-items-center align-text-center card-attribute w-50">
+                                    <i class="fa-solid fa-clock"/>
+                                    <p class="text-light"> @quizModel.DateCreated.ToShortDateString()</p>
+                                </div>
+                                <div class="d-flex flex-grow-1 align-items-center align-text-center card-attribute w-50">
+                                    <i class="fa-solid fa-arrow-rotate-left"></i>
+                                    <p class="text-light"> Played: @quizModel.GamesPlayed</p>
+                                </div>
                             </div>
                         </div>
                         <div class="d-flex flex-row flex-wrap card-attribute py-2 gap-2">
@@ -55,12 +57,12 @@
                         </div>
                     }
                 </div>
-            <form>
 
+            <form>
             @foreach (var question in quizModel.Questions)
             {
-                <div class="@("card block-container text-light justify-center flex-grow-1 mb-3 flex-column " + activeQuestionClass(question.Index))">
-                    <div class="d-flex flex-row gap-3">
+                <div class="@("card block-container text-light justify-center flex-grow-1 mb-3 flex-column " + activeQuestionClass(question.Id))">
+                    <div class="d-flex flex-row gap-3 mediaColumn">
                         <div class="main-content stats justify-content-between rounded">
                             <div class="d-flex flex-row flex-wrap justify-content-between align-items-center py-2 gap-1
                                         border border-secondary rounded stats">
@@ -68,14 +70,16 @@
                                     <h3><strong>@question.Questions</strong></h3>
                                 </header>
                                 @if (question.Time != 0)
-                                    {
-                                    <div class="d-flex flex-grow-1 align-items-center align-text-center card-attribute w-50">
-                                        <i class="fa-solid fa-clock"/>
-                                        <p class="text-light">Question has a time limit of @question.Time seconds.</p>
+                                {
+                                    <div class="stats-container d-flex flex-column w-100 flex-wrap">
+                                        <div class="d-flex flex-grow-1 align-items-center align-text-center card-attribute w-50">
+                                            <i class="fa-solid fa-clock"/>
+                                            <p class="text-light">Question has a time limit of @question.Time seconds.</p>
+                                        </div>
                                     </div>
                                 }
                             </div>
-                            <div class="main-content flex-row w-100 p-2">
+                            <div class="flex-row w-100 p-2">
                                 @if (question.MultipleChoice)
                                 {
                                     <div class="d-flex flex-column w-100 flex-grow-2 gap-1 flex-nowrap justify-contents-center form-group">
@@ -83,7 +87,7 @@
                                             @if (string.IsNullOrEmpty(mockAnswer.MockAnswer))
                                             {
                                                 <div class="d-flex flex-grow-1 w-25 form-check align-items-center">
-                                                    <input class="form-check-input me-2" type="radio" name="@($"answer-{question.Id}")" id="@($"answer-{question.Id}-{mockAnswer.Id}")">
+                                                    <input class="form-check-input me-2" type="radio" name="@($"answer-{question.Id}")" id="@($"answer-{question.Id}-{mockAnswer.Id}")" required>
                                                     <label class="form-check-label text-white" for="@($"answer-{question.Id}-{mockAnswer.Id}")">
                                                         <p class="p-0 m-0">asdwa wdaw dawd awdwad awd</p>
                                                     </label>
@@ -92,7 +96,7 @@
                                             else
                                             {
                                                 <div class="d-flex flex-grow-1 w-25 form-check align-items-center">
-                                                    <input class="form-check-input me-2" type="radio" name="@($"answer-{question.Id}")" id="@($"answer-{question.Id}-{mockAnswer.Id}")">
+                                                    <input class="form-check-input me-2" type="radio" name="@($"answer-{question.Id}")" id="@($"answer-{question.Id}-{mockAnswer.Id}")" required>
                                                     <label class="form-check-label text-white" for="@($"answer-{question.Id}-{mockAnswer.Id}")">
                                                         <p class="p-0 m-0">@mockAnswer.MockAnswer</p>
                                                     </label>
@@ -103,37 +107,47 @@
                                 }
                                 else
                                 {
-                                    <input type="text" class="form-control mb-3" placeholder="Your Answer">
+                                    <input type="text" class="form-control mb-3" placeholder="Your Answer" name="@($"answer-{question.Id}")" id="@($"answer-{question.Id}")" required>
                                 }
                             </div>
                         </div>
-
-                        <div class="main-content justify-content-between flex-column w-100">
-                            @if (question.Media != null && !string.IsNullOrEmpty(question.Media.Path) &&
-                            !string.IsNullOrEmpty(question.Media.ContentType))
-                            {
-                                <div class="image-container w-100 align-items-center">
-                                    @if (question.Media.ContentType.Contains("image"))
-                                    {
-                                        <img src="@question.Media.Path" class="w-100 hero-image rounded"/>
-                                    }
-                                    @if (question.Media.ContentType.Contains("video"))
-                                    {
-                                        <VidazorVideo class="w-100 image rounded mb-0" controls="true" muted="false"
-                                            type="@question.Media.ContentType">
-                                            <source src="@question.Media.Path">
-                                        </VidazorVideo>
-                                    }
-                                </div>
-                            }
-                        </div>
+                        @if (question.Media != null && !string.IsNullOrEmpty(question.Media.Path) &&
+                        !string.IsNullOrEmpty(question.Media.ContentType))
+                        {
+                            <div class="image-container w-100 align-items-center">
+                                @if (question.Media.ContentType.Contains("image"))
+                                {
+                                    <img src="@question.Media.Path" class="w-100 hero-image rounded"/>
+                                }
+                                @if (question.Media.ContentType.Contains("video"))
+                                {
+                                    <VidazorVideo class="w-100 image rounded mb-0" controls="true" muted="false"
+                                        type="@question.Media.ContentType">
+                                        <source src="@question.Media.Path">
+                                    </VidazorVideo>
+                                }
+                            </div>
+                        }
                     </div>
                 </div>
             }
+                <div class="question-pills d-flex flex-row justify-content-center align-items-center pb-3">
+                    @foreach (var question in quizModel.Questions)
+                    {
+                        <div class="@("question-pill mx-1 rounded " + activeQuestionPillClass(question.Id))" @onclick="() => SetActiveQuestion(question.Id)">
+                            @question.Id
+                        </div>
+                    }
+                </div>
                 <div class="btn-group d-flex flex-row w-100 gap-1 flex-nowrap justify-contents-center text-center" role="group" aria-label="Question Navigator">
-                    <button type="button" class="btn btn-outline-primary form-check w-33 justify-contents-center text-center mx-auto" @onclick="PreviousQuestion" disabled="@IsPreviousDisabled"><i class="fas fa-arrow-left"></i></button>
-                    <button type="submit" class="btn btn-outline-primary form-check w-33 justify-contents-center text-center mx-auto" @onclick="SubmitQuiz">Submit</button>
-                    <button type="button" class="btn btn-outline-primary form-check w-33 justify-contents-center text-center mx-auto" @onclick="NextQuestion" disabled="@IsNextDisabled"><i class="fas fa-arrow-right"></i></button>
+                    <button type="button" class="btn btn-outline-primary form-check w-33 justify-contents-center text-center mx-auto"
+                    @onclick="PreviousQuestion" disabled="@IsPreviousDisabled"><i class="fas fa-arrow-left"></i></button>
+
+                    <button type="submit" class="btn btn-outline-primary form-check w-33 justify-contents-center text-center mx-auto"
+                    @onclick="SubmitQuiz">Submit</button>
+
+                    <button type="button" class="btn btn-outline-primary form-check w-33 justify-contents-center text-center mx-auto"
+                    @onclick="NextQuestion" disabled="@IsNextDisabled"><i class="fas fa-arrow-right"></i></button>
                 </div>
             </form>
         </div>
@@ -151,13 +165,17 @@
     [Parameter]
     public int? QuizId { get; set; }
     private QuizModel quizModel = new QuizModel();
-    private int activeQuestionIndex = 0;
-    private Dictionary<int, bool> questionButtonStates = new Dictionary<int, bool>();
 
-    private bool IsPreviousDisabled => activeQuestionIndex == 0;
-    private bool IsNextDisabled => activeQuestionIndex == quizModel.Questions.Count - 1;
+    private int activeQuestionId;
+    private bool IsPreviousDisabled => quizModel.Questions.Count > 0 && activeQuestionId == quizModel.Questions.Min(q => q.Id);
+    private bool IsNextDisabled => quizModel.Questions.Count > 0 && activeQuestionId == quizModel.Questions.Max(q => q.Id);
+    private string activeQuestionClass(int questionId) => questionId == activeQuestionId ? "" : "hiddenQuestion";
+    private string activeQuestionPillClass(int questionId) => questionId == activeQuestionId ? "activePill" : "";
 
-    private string activeQuestionClass(int index) => index == activeQuestionIndex ? "" : "hiddenQuestion";
+    private void SetActiveQuestion(int questionId)
+    {
+        activeQuestionId = questionId;
+    }
 
     private async Task SubmitQuiz()
     {
@@ -167,17 +185,19 @@
 
     private void PreviousQuestion()
     {
-        if (activeQuestionIndex > 0)
+        var prevQuestionId = quizModel.Questions.Where(q => q.Id < activeQuestionId).Max(q => q.Id);
+        if (prevQuestionId != 0)
         {
-            activeQuestionIndex--;
+            activeQuestionId = prevQuestionId;
         }
     }
 
     private void NextQuestion()
     {
-        if (activeQuestionIndex < quizModel.Questions.Count - 1)
+        var nextQuestionId = quizModel.Questions.Where(q => q.Id > activeQuestionId).Min(q => q.Id);
+        if (nextQuestionId != 0)
         {
-            activeQuestionIndex++;
+            activeQuestionId = nextQuestionId;
         }
     }
 
@@ -188,29 +208,15 @@
         {
             var content = await response.Content.ReadAsStringAsync();
             quizModel = JsonConvert.DeserializeObject<QuizModel>(content);
-            //Console.WriteLine(JsonConvert.SerializeObject(quizModel));
+            Console.WriteLine(JsonConvert.SerializeObject(quizModel));
+            if (quizModel.Questions.Any())
+            {
+                activeQuestionId = quizModel.Questions.First().Id;
+            }
         }
         else
         {
             Console.WriteLine("Could not get a response");
-        }
-        InitializeQuestionButtonStates();
-    }
-
-    private void InitializeQuestionButtonStates()
-    {
-        foreach (var question in quizModel.Questions)
-        {
-            questionButtonStates.Add(question.Index, false);
-        }
-        questionButtonStates[activeQuestionIndex] = true; // Set the first question button to active
-    }
-
-    private void UpdateQuestionButtonStates()
-    {
-        foreach (var key in questionButtonStates.Keys.ToList())
-        {
-            questionButtonStates[key] = key == activeQuestionIndex;
         }
     }
 }

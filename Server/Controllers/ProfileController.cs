@@ -49,7 +49,7 @@ namespace QuizApp.Server.Controllers
             {
                 return StatusCode(
                     500,
-                    $"An error occurred while retrieving user games: {ex.Message}"
+                    $"An error occurred while retrieving user's games: {ex.Message}"
                 ); // Returnera en 500 HTTP-statuskod om ett fel inträffade
             }
         }
@@ -70,7 +70,7 @@ namespace QuizApp.Server.Controllers
             {
                 return StatusCode(
                     500,
-                    $"An error occurred while retrieving user created games: {ex.Message}"
+                    $"An error occurred while retrieving user's quizzes: {ex.Message}"
                 ); // Returnera en 500 HTTP-statuskod om ett fel inträffade
             }
         }
@@ -97,7 +97,7 @@ namespace QuizApp.Server.Controllers
             {
                 return StatusCode(
                     500,
-                    $"An error occurred while retrieving user created games: {ex.Message}"
+                    $"An error occurred while retrieving user's quizzes: {ex.Message}"
                 ); // Returnera en 500 HTTP-statuskod om ett fel inträffade
             }
         }
