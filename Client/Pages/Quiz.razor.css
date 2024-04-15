@@ -31,7 +31,7 @@
   flex-shrink: 1;
   display: flex;
   flex-direction: column;
-  max-width: 25%;
+  width: 25%;
 }
 
 .main-content > div > header {
@@ -57,6 +57,7 @@
   object-fit: contain !important;
   max-height: inherit;
   max-width: inherit;
+  flex-grow: 1;
 }
 
 .hiddenQuestion {
@@ -110,6 +111,20 @@
   border: 3px solid red !important;
 }
 
+.activeAnswer {
+  border: 1px solid green !important;
+  color: green !important;
+}
+
+.activeAnswer:hover {
+  border: 1px solid white !important;
+}
+
+.activeAnswer:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 @media (max-width: 641px) {
   .mediaColumn {
     flex-direction: column-reverse !important;
@@ -135,7 +150,7 @@
   }
 
   .main-content {
-    max-width: 100% !important;
+    width: 100% !important;
   }
 
   .main-content > div > header {

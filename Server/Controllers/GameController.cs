@@ -36,43 +36,44 @@ namespace QuizApp.Server.Controllers
         }
 
         [HttpPost("savegame")]
-        public IActionResult SaveGame([FromBody] SaveGameRequest request)
+        public async Task<IActionResult> SaveGame([FromBody] Quiz answerQuiz)
         {
-            var answer = _context
-                .Answer.Include(a => a.User)
-                .Where(a => a.Id == request.Answer.Id)
-                .FirstOrDefault();
-
-            if (answer == null)
-            {
-                return NotFound();
-            }
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            var user = await _userManager.FindByIdAsync(userId);
 
             var originalQuiz = _context
-                .Quizzes.Include(q => q.User)
-                .Where(x => x.Id == answer.OriginalQuiz.Id)
+                .Quizzes.Include(q => q.Media != null ? q.Media : null)
+                .Where(x => x.Id == answerQuiz.Id)
                 .FirstOrDefault();
 
-            var answerQuiz = _context
-                .Quizzes.Include(q => q.User)
-                .Where(x => x.Id == answer.AnswerQuiz.Id)
-                .FirstOrDefault();
-
-            if (originalQuiz == null || answerQuiz == null)
+            if (originalQuiz == null)
             {
                 return NotFound();
             }
+
+            var _answerQuiz = originalQuiz;
+            answerQuiz.UserId = userId;
+            answerQuiz.Questions = answerQuiz.Questions;
+
+            var answer = new Answer
+            {
+                OriginalQuiz = originalQuiz,
+                AnswerQuiz = _answerQuiz,
+                UserId = userId,
+                User = user
+            };
 
             var game = new Game()
             {
                 Answer = answer,
-                UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value,
-                Score = request.Score,
+                UserId = userId,
+                User = user,
+                //Score = request.Score,
             };
 
             _context.Games.Add(game);
 
-            answerQuiz.GamesPlayed += 1;
+            _answerQuiz.GamesPlayed += 1;
             originalQuiz.GamesPlayed += 1;
 
             _context.SaveChanges();
