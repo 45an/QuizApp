@@ -50,7 +50,7 @@ namespace QuizApp.Server.Controllers
                 return StatusCode(
                     500,
                     $"An error occurred while retrieving user's games: {ex.Message}"
-                ); // Returnera en 500 HTTP-statuskod om ett fel inträffade
+                );
             }
         }
 
@@ -61,7 +61,7 @@ namespace QuizApp.Server.Controllers
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
                 var userQuizzes = await _context
-                    .Quizzes.Where(q => q.UserId == userId) // Filtrera quiz som är skapade av användaren
+                    .Quizzes.Where(q => q.UserId == userId)
                     .ToListAsync();
 
                 return Ok(userQuizzes);
@@ -71,7 +71,7 @@ namespace QuizApp.Server.Controllers
                 return StatusCode(
                     500,
                     $"An error occurred while retrieving user's quizzes: {ex.Message}"
-                ); // Returnera en 500 HTTP-statuskod om ett fel inträffade
+                );
             }
         }
 
@@ -84,7 +84,7 @@ namespace QuizApp.Server.Controllers
 
                 if (user == null)
                 {
-                    return NotFound($"User with ID {UserId} not found.");
+                    return NotFound($"User with ID: {UserId} not found.");
                 }
 
                 var userQuizzes = await _context
@@ -98,7 +98,42 @@ namespace QuizApp.Server.Controllers
                 return StatusCode(
                     500,
                     $"An error occurred while retrieving user's quizzes: {ex.Message}"
-                ); // Returnera en 500 HTTP-statuskod om ett fel inträffade
+                );
+            }
+        }
+
+        [HttpGet("answers/{UserId}")]
+        public async Task<IActionResult> GetUserAnswers(string UserId)
+        {
+            try
+            {
+                var user = await _userManager.FindByIdAsync(UserId);
+
+                if (user == null)
+                {
+                    return NotFound($"User with ID: {UserId} not found.");
+                }
+
+                var userAnswers = await _context
+                    .Answer.Where(a => a.UserId == user.Id)
+                    .Include(a => a.OriginalQuiz)
+                    .Include(a => a.AnswerQuiz)
+                    .ToListAsync();
+
+                var userAnswersView = new List<AnswerView>();
+                foreach (var userAnswer in userAnswers)
+                {
+                    userAnswersView.Add(AnswerConverter.Convert(userAnswer));
+                }
+
+                return Ok(userAnswersView);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(
+                    500,
+                    $"An error occurred while retrieving user's answers: {ex.Message}"
+                );
             }
         }
     }

@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting.Internal;
 using QuizApp.Server.Data;
 using QuizApp.Server.Models;
+using QuizApp.Server.Models.ViewModels;
 using QuizApp.Server.Models.ViewModels.Requests;
 
 namespace QuizApp.Server.Controllers
@@ -42,18 +43,34 @@ namespace QuizApp.Server.Controllers
             var user = await _userManager.FindByIdAsync(userId);
 
             var originalQuiz = _context
-                .Quizzes.Include(q => q.Media != null ? q.Media : null)
-                .Where(x => x.Id == answerQuiz.Id)
-                .FirstOrDefault();
+                .Quizzes.Include(q => q.Media)
+                .Include(q => q.Questions)
+                .FirstOrDefault(x => x.Id == answerQuiz.Id);
 
             if (originalQuiz == null)
             {
                 return NotFound();
             }
 
-            var _answerQuiz = originalQuiz;
-            answerQuiz.UserId = userId;
-            answerQuiz.Questions = answerQuiz.Questions;
+            originalQuiz.GamesPlayed += 1;
+
+            // Detach originalQuiz from the context
+            _context.Entry(originalQuiz).State = EntityState.Detached;
+
+            var _answerQuiz = new Quiz
+            {
+                UserName = originalQuiz.UserName,
+                Title = originalQuiz.Title,
+                Media = originalQuiz.Media,
+                DateCreated = originalQuiz.DateCreated,
+                MaxScore = originalQuiz.MaxScore,
+                UserId = userId,
+            };
+
+            foreach (var answerQuestion in answerQuiz.Questions)
+            {
+                _answerQuiz.Questions.Add(answerQuestion);
+            }
 
             var answer = new Answer
             {
@@ -68,17 +85,51 @@ namespace QuizApp.Server.Controllers
                 Answer = answer,
                 UserId = userId,
                 User = user,
-                //Score = request.Score,
+                Score = CalculateScore(originalQuiz, _answerQuiz),
             };
 
-            _context.Games.Add(game);
+            _context.Quizzes?.Add(_answerQuiz);
+            _context.Answer?.Add(answer);
+            _context.Games?.Add(game);
+            await _context.SaveChangesAsync();
+            var gameView = GameConverter.Convert(game);
+            return Ok(gameView);
+        }
 
-            _answerQuiz.GamesPlayed += 1;
-            originalQuiz.GamesPlayed += 1;
+        private int CalculateScore(Quiz originalQuiz, Quiz answerQuiz)
+        {
+            // Check if OriginalQuiz is null
+            if (
+                originalQuiz == null
+                || originalQuiz.Questions == null
+                || answerQuiz == null
+                || answerQuiz.Questions == null
+            )
+            {
+                return 0; // No questions or answers, score is 0
+            }
 
-            _context.SaveChanges();
+            int maxScore = originalQuiz.MaxScore;
+            int score = 0;
 
-            return Ok();
+            // Iterate through each question and compare answers
+            foreach (var answerQuestion in answerQuiz.Questions)
+            {
+                var originalQuestion = originalQuiz.Questions.FirstOrDefault(q =>
+                    q.Id == answerQuestion.Id
+                );
+                if (
+                    answerQuestion != null
+                    && originalQuestion.Answer.ToLower() == answerQuestion.Answer.ToLower()
+                )
+                {
+                    // Correct answer, add 100 to the score
+                    score += 100;
+                }
+                // Else: Incorrect answer, no points awarded for this question
+            }
+
+            return score;
         }
     }
 }

@@ -5,8 +5,8 @@ namespace QuizApp.Client.Shared.Models
     class AnswerModel
     {
         public int Id { get; set; }
-        public virtual QuizModel? OriginalQuiz { get; set; }
-        public virtual QuizModel? AnswerQuiz { get; set; }
+        public QuizModel OriginalQuiz { get; set; }
+        public QuizModel AnswerQuiz { get; set; }
         public string? UserId { get; set; }
     }
 
@@ -24,7 +24,7 @@ namespace QuizApp.Client.Shared.Models
         public int Index { get; set; }
         public string UserName { get; set; }
         public string Title { get; set; }
-        public virtual MediaModel? Media { get; set; }
+        public MediaModel? Media { get; set; }
         public IBrowserFile File { get; set; }
         public DateTime DateCreated { get; set; }
         public int MaxScore { get; set; }
@@ -35,7 +35,7 @@ namespace QuizApp.Client.Shared.Models
 
     class MediaModel
     {
-        public Guid? MediaGuid { get; set; }
+        public string? MediaGuid { get; set; }
         public string? Hash { get; set; }
         public string? Path { get; set; }
         public string? ContentType { get; set; }
@@ -49,7 +49,7 @@ namespace QuizApp.Client.Shared.Models
         public int Index { get; set; }
         public string Questions { get; set; }
         public string Answer { get; set; }
-        public virtual MediaModel? Media { get; set; }
+        public MediaModel? Media { get; set; }
         public IBrowserFile File { get; set; }
         public int Time { get; set; }
         public bool MultipleChoice { get; set; }

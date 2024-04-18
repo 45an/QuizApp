@@ -11,7 +11,7 @@
 
             var mediaView = new MediaView
             {
-                Guid = media.MediaGuid,
+                MediaGuid = media.MediaGuid.ToString(),
                 Hash = media.Hash,
                 Path = media.Path,
                 ContentType = media.ContentType,

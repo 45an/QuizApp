@@ -13,31 +13,31 @@
     <Authorized>
         <div class="container pb-4 mb-4">
                 @* Container for the quiz info and image *@
-                <div class="card block-container text-light justify-content-between flex-grow-1 mb-4 flex-row mediaColumn justify-content-between">
+                <div class="card block-container text-light flex-grow-1 mb-4 flex-row mediaColumn">
                     <div class="main-content stats justify-content-between rounded">
                         <div class="d-flex flex-row flex-wrap justify-content-between align-items-center py-2 gap-1
                                     border border-secondary rounded stats">
                             <header class="navbar w-100 mb-4 p-0 border-bottom border-2 border-secondary text-light text-center justify-content-center">
                                 <h2><strong>@originalQuiz.Title</strong></h2>
                             </header>
-                            <div class="stats-container d-flex flex-column w-100 flex-wrap">
-                                <div class="d-flex flex-grow-1 align-items-center align-text-center card-attribute w-50">
+                            <div class="stats-container d-flex flex-column w-100 flex-wrap gap-1">
+                                <div class="d-flex flex-grow-1 align-items-center align-text-center card-attribute">
                                     <i class="fa-solid fa-star"/>
                                     <p class="text-light"> @originalQuiz.MaxScore</p>
                                 </div>
-                                <div class="d-flex flex-grow-1 align-items-center align-text-center card-attribute w-50">
+                                <div class="d-flex flex-grow-1 align-items-center align-text-center card-attribute">
                                     <i class="fa-solid fa-clock"/>
                                     <p class="text-light"> @originalQuiz.DateCreated.ToShortDateString()</p>
                                 </div>
-                                <div class="d-flex flex-grow-1 align-items-center align-text-center card-attribute w-50">
+                                <div class="d-flex flex-grow-1 align-items-center align-text-center card-attribute">
                                     <i class="fa-solid fa-arrow-rotate-left"></i>
                                     <p class="text-light"> Played: @originalQuiz.GamesPlayed</p>
                                 </div>
                             </div>
                         </div>
-                        <div class="stats-container d-flex flex-column w-100 flex-wrap mb-2">
-                            <div class="d-flex flex-grow-1 align-items-center align-text-center card-attribute w-100">
-                                <i class="fa-solid fa-user"></i><p class="text-light"> Quiz by <span><a class="text-decoration-none" href="{quizModel.UserId}">@originalQuiz.UserName</a></span></p>
+                        <div class="stats-container d-flex flex-column w-100 flex-wrap gap-1 mb-2">
+                            <div class="d-flex flex-grow-1 align-items-center align-text-center card-attribute">
+                                <i class="fa-solid fa-user"></i><p class="text-light"> Quiz by <span><a class="text-decoration-none" href="@("userQuiz/" + originalQuiz.UserId)">@originalQuiz.UserName</a></span></p>
                             </div>
                         </div>
                     </div>
@@ -46,7 +46,7 @@
                     @if (originalQuiz.Media != null && !string.IsNullOrEmpty(originalQuiz.Media.Path) &&
                     !string.IsNullOrEmpty(originalQuiz.Media.ContentType))
                     {
-                        <div class="hero-image-container mw-100 mb-0 align-items-center justify-content-center">
+                        <div class="hero-image-container w-100 mw-100 mb-0 align-items-center justify-content-center">
                             @if (originalQuiz.Media.ContentType.Contains("image"))
                             {
                                 <img src="@originalQuiz.Media.Path" class="mw-100 hero-image rounded"/>
@@ -67,7 +67,7 @@
             {
                 @* Container for the question info and image *@
                 <div class="@("card block-container text-light justify-center flex-grow-1 mb-3 flex-column " + activeQuestionClass(question.Id))">
-                    <div class="d-flex flex-row gap-3 mediaColumn justify-content-between">
+                    <div class="d-flex flex-row gap-3 mediaColumn">
                         <div class="main-content stats justify-content-between rounded">
                             <div class="d-flex flex-row flex-wrap justify-content-between align-items-center py-2 gap-1
                                         border border-secondary rounded stats">
@@ -76,8 +76,8 @@
                                 </header>
                                 @if (question.Time != 0)
                                 {
-                                    <div class="stats-container d-flex flex-column w-100 flex-wrap">
-                                        <div class="d-flex flex-grow-1 align-items-center align-text-center card-attribute w-50">
+                                    <div class="stats-container d-flex flex-column w-100 flex-wrap gap-1">
+                                        <div class="d-flex flex-grow-1 align-items-center align-text-center card-attribute">
                                             <i class="fa-solid fa-clock"/>
                                             <p class="text-light">Question has a time limit of @question.Time seconds.</p>
                                         </div>
@@ -126,7 +126,7 @@
                         @if (question.Media != null && !string.IsNullOrEmpty(question.Media.Path) &&
                         !string.IsNullOrEmpty(question.Media.ContentType))
                         {
-                            <div class="image-container mw-100 mb-0 align-items-center justify-content-center">
+                            <div class="image-container w-100 mw-100 mb-0 align-items-center justify-content-center">
                                 @if (question.Media.ContentType.Contains("image"))
                                 {
                                     <img src="@question.Media.Path" class="mw-100 hero-image rounded"/>
@@ -184,16 +184,16 @@
     private bool IsNextDisabled => originalQuiz.Questions.Count > 0 && activeQuestionId == originalQuiz.Questions.Max(q => q.Id);
     private string activeQuestionClass(int questionId) => questionId == activeQuestionId ? "" : "hiddenQuestion";
     private string activeQuestionPillClass(int questionId) => questionId == activeQuestionId ? "activePill" : "";
-    private string selectedMockAnswerClass(int questionId, string mockAnswer) => UserInput[questionId].Contains(mockAnswer) ? "activeAnswer" : "";
+    private string selectedAnswerClass(int questionId, string answer) => UserInput[questionId] == answer ? "activeAnswer" : "";
     private Dictionary<int, string> pillClasses = new Dictionary<int, string>();
     private Dictionary<int, string> UserInput = new Dictionary<int, string>();
 
-    private string GetMultipleChoiceClass(int questionId, string mockAnswer) {
+    private string GetMultipleChoiceClass(int questionId, string answer) {
         var validInput = IsInputValid(questionId);
         // Check if the question's input is required and not valid
         if (validInput)
         {
-            return selectedMockAnswerClass(questionId, mockAnswer);
+            return selectedAnswerClass(questionId, answer);
         }
         else
         {
@@ -241,7 +241,7 @@
         // Update pill classes for all questions
         foreach (var key in pillClasses.Keys.ToList())
         {
-            pillClasses[key] = activeQuestionPillClass(key);
+            pillClasses[key] = activeQuestionPillClass(questionId);
             if (!IsInputValid(key))
             {
                 pillClasses[key] += " invalidPill"; // Add invalidPill class to inactive pills with no input
@@ -250,37 +250,6 @@
 
         // Set active pill class for the current question
         pillClasses[questionId] = GetPillClass(questionId);
-
-        // Update activeAnswer class for multiple choice questions
-        foreach (var question in originalQuiz.Questions)
-        {
-            if (question.MultipleChoice)
-            {
-                foreach (var mockAnswer in question.MocksAnswers)
-                {
-                    var currentClass = GetMultipleChoiceClass(question.Id, mockAnswer.MockAnswer);
-                    var selectedClass = selectedMockAnswerClass(question.Id, mockAnswer.MockAnswer);
-                    if (selectedClass != currentClass)
-                    {
-                        pillClasses[question.Id] = selectedClass;
-
-                        // If the answer is selected, exit the loop
-                        if (selectedClass.Contains("activeAnswer"))
-                        {
-                            // Remove the activeAnswer class from all other mock answers
-                            foreach (var otherMockAnswer in question.MocksAnswers)
-                            {
-                                if (otherMockAnswer.MockAnswer != mockAnswer.MockAnswer)
-                                {
-                                    pillClasses[question.Id] = GetMultipleChoiceClass(question.Id, otherMockAnswer.MockAnswer);
-                                }
-                            }
-                            break;
-                        }
-                    }
-                }
-            }
-        }
     }
 
     private void PreviousQuestion()
@@ -321,7 +290,7 @@
         {
             var content = await response.Content.ReadAsStringAsync();
             originalQuiz = JsonConvert.DeserializeObject<QuizModel>(content);
-            //Console.WriteLine(JsonConvert.SerializeObject(quizModel));
+            Console.WriteLine(JsonConvert.SerializeObject(originalQuiz));
             if (originalQuiz.Questions.Any())
             {
                 activeQuestionId = originalQuiz.Questions.First().Id;
@@ -366,7 +335,6 @@
 
     private async Task SubmitQuiz()
     {
-        // Create a new AnswerModel
         answerQuiz = originalQuiz;
 
         // Set the answers for each question based on the user input

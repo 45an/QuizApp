@@ -45,7 +45,7 @@
             </div>
         </div>
         <div class="d-flex flex-row card-attribute border-top border-secondary pt-2 gap-2">
-            <p class="text-light">Quiz by <span><a href="#">AI</a></span></p>
+            <i class="fa-solid fa-user"></i><p class="text-light"> Quiz by <span><a class="text-decoration-none" href="#">AI</a></span></p>
         </div>
     </div>
     } else {
@@ -66,8 +66,14 @@
                 <p class="text-light"> Played: @quizModel.GamesPlayed</p>
             </div>
         </div>
-        <div class="d-flex flex-row flex-wrap card-attribute py-2 gap-2">
-            <p class="text-light">Quiz by <span><a class="text-decoration-none" href="@("userQuiz/" + quizModel.UserId)">@quizModel.UserName</a></span></p>
+        <div class="d-flex flex-row flex-wrap justify-content-between align-items-center py-2 gap-1">
+            <div class="d-flex flex-grow align-items-center align-text-center card-attribute">
+                <i class="fa-solid fa-user"></i>
+                <p class="text-light"> Quiz by <span>
+                    <a class="text-decoration-none" href="@("userQuiz/" + quizModel.UserId)">@quizModel.UserName</a>
+                    </span>
+                </p>
+            </div>
         </div>
     </div>
     }

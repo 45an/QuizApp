@@ -4,7 +4,6 @@
 }
 
 .stats i {
-  color: var(--var-soft-blue);
   width: fit-content !important;
 }
 
@@ -40,14 +39,14 @@
 
 .hero-image-container {
   position: relative;
-  display: block;
+  display: flex;
   height: fit-content;
   max-height: 35vh;
 }
 
 .image-container {
   position: relative;
-  display: block;
+  display: flex;
   height: fit-content;
   max-height: 45vh;
 }

@@ -1,6 +1,10 @@
 @import url("open-iconic/font/css/open-iconic-bootstrap.min.css");
 @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap");
 
+* {
+  transition: opacity 0.3s ease, transform 0.3s ease, background-color 0.3s ease;
+}
+
 :root {
   font-size: 15px;
 
