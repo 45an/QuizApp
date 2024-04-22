@@ -4,7 +4,6 @@
 }
 
 .stats i {
-  color: var(--var-soft-blue);
   width: fit-content !important;
 }
 
@@ -31,18 +30,23 @@
   flex-shrink: 1;
   display: flex;
   flex-direction: column;
+  width: 25%;
+}
+
+.main-content > div > header {
+  word-break: break-word;
 }
 
 .hero-image-container {
   position: relative;
-  display: block;
+  display: flex;
   height: fit-content;
   max-height: 35vh;
 }
 
 .image-container {
   position: relative;
-  display: block;
+  display: flex;
   height: fit-content;
   max-height: 45vh;
 }
@@ -52,6 +56,7 @@
   object-fit: contain !important;
   max-height: inherit;
   max-width: inherit;
+  flex-grow: 1;
 }
 
 .hiddenQuestion {
@@ -73,7 +78,7 @@
 }
 
 .card-attribute i {
-  margin-left: 0.5rem;
+  margin-left: 1rem;
 }
 
 .card-attribute p {
@@ -81,4 +86,77 @@
   margin-right: 0.5rem;
   margin-bottom: 0;
   font-weight: 400;
+}
+
+.question-pill {
+  /* background-color: var(--var-soft-blue); */
+  color: var(--var-soft-blue);
+  border: 1px solid var(--var-line-dark);
+  max-width: 3rem;
+  flex-grow: 1;
+  text-align: center;
+}
+
+.activePill {
+  border: 3px solid var(--var-line-dark) !important;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.invalidPill {
+  border: 1px solid red !important;
+}
+
+.activePill.invalidPill {
+  border: 3px solid red !important;
+}
+
+.activeAnswer {
+  border: 1px solid green !important;
+  color: green !important;
+}
+
+.activeAnswer:hover {
+  border: 1px solid white !important;
+}
+
+.activeAnswer:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+@media (max-width: 641px) {
+  .mediaColumn {
+    flex-direction: column-reverse !important;
+  }
+
+  .block-container {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+  }
+  .card-container {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .hero-image {
+    height: 100%;
+  }
+
+  .hero-image-container::after {
+    height: 100%;
+  }
+
+  .main-content {
+    width: 100% !important;
+  }
+
+  .main-content > div > header {
+    margin-bottom: 0.5rem !important;
+  }
+
+  .stats-container {
+    flex-direction: row !important;
+  }
 }

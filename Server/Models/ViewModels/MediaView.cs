@@ -2,7 +2,7 @@
 {
     public class MediaView
     {
-        public Guid Guid { get; set; }
+        public string MediaGuid { get; set; }
         public string? Hash { get; set; }
         public string? Path { get; set; }
         public string? ContentType { get; set; }

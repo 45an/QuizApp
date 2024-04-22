@@ -15,6 +15,7 @@
                 QuizId = question.QuizId,
                 Questions = question.Questions,
                 Answer = question.Answer,
+                CorrectAnswer = question.CorrectAnswer,
                 Media = MediaConverter.Convert(question.Media),
                 Time = question.Time,
                 MultipleChoice = question.MultipleChoice

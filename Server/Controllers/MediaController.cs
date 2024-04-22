@@ -61,7 +61,7 @@ namespace QuizApp.Server.Controllers
         [HttpPost("addMedia")]
         public async Task<IActionResult> UploadMediaAsync([FromForm] IFormFile file)
         {
-            var user = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (file == null || file.Length == 0)
                 return BadRequest("No file uploaded.");
@@ -126,7 +126,7 @@ namespace QuizApp.Server.Controllers
                     Path = fullPath,
                     ContentType = file.ContentType,
                     //FileBytes = contentBytes,
-                    UserId = user
+                    UserId = userId
                 };
 
                 _context.Media.Add(newMedia);

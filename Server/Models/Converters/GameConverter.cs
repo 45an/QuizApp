@@ -12,7 +12,7 @@
             var gameView = new GameView
             {
                 Id = game.Id,
-                QuizId = game.QuizId,
+                AnswerId = game.AnswerId,
                 UserId = game.UserId,
                 Score = game.Score
             };

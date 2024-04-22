@@ -19,6 +19,7 @@ namespace QuizApp.Server.Data
         public DbSet<Question>? Questions { get; set; }
         public DbSet<Media>? Media { get; set; }
         public DbSet<Mock>? Mocks { get; set; }
+        public DbSet<Answer>? Answer { get; set; }
         public DbSet<ApplicationUser>? ApplicationUserModel { get; set; }
     }
 }

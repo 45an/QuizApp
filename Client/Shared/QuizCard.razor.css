@@ -1,99 +1,96 @@
 .stats {
-    background-color: var(--var-main-darkest);
-    border-color: transparent !important;
-}
-
-.stats i {
-    color: var(--var-soft-blue);
+  background-color: var(--var-main-darkest);
+  border-color: transparent !important;
 }
 
 .card-container {
-    background-color: var(--var-card-dark);
-    border-radius: .25rem;
-    min-width: 30%;
-    max-width: 50% !important;
-    height: fit-content !important;
+  background-color: var(--var-card-dark);
+  border-radius: 0.25rem;
+  min-width: 30%;
+  max-width: 50% !important;
+  height: fit-content !important;
 }
 
 .main-content {
-    flex-shrink: 1;
-    display: flex;
-    flex-direction: column;
+  flex-shrink: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .hero-image-container {
-    position: relative;
-    display: block;
-    height: fit-content;
-    max-height: 45vh;
+  position: relative;
+  display: block;
+  height: fit-content;
+  max-height: 45vh;
 }
 
 .hero-image {
-    aspect-ratio: initial;
-    object-fit: contain !important;
-    max-height: inherit;
-    max-width: inherit;
+  aspect-ratio: initial;
+  object-fit: contain !important;
+  max-height: inherit;
+  max-width: inherit;
 }
 
 .hero-image-container::after {
-    content: '';
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: 5rem;
-    background-color: hsla(178, 100%, 50%, 0.3);
-    width: 100%;
-    height: fit-content;
-    border-radius: 0.25rem;
-    position: absolute;
-    top: 0;
-    left: 0;
-    display: block;
-    z-index: 2;
-    opacity: 0;
-    transition: opacity 0.3s ease-out;
+  content: "";
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 5rem;
+  background-color: hsla(178, 100%, 50%, 0.3);
+  width: 100%;
+  height: fit-content;
+  border-radius: 0.25rem;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
 }
 
 .hero-image-container:hover::after {
-    opacity: 1;
+  opacity: 1;
 }
 
 .attribution {
-    margin: 0 auto;
-    width: 100%;
-    text-align: center;
-    padding: 1.5em 0 4em 0;
-    color: #343a40;
-    /* Bootstrap's text-dark color */
+  margin: 0 auto;
+  width: 100%;
+  text-align: center;
+  padding: 1.5em 0 4em 0;
+  color: #343a40;
+  /* Bootstrap's text-dark color */
 }
 
 .attribution a {
-    color: #007bff;
-    /* Bootstrap's primary color */
+  color: #007bff;
+  /* Bootstrap's primary color */
 }
 
 .card-attribute i {
-    margin-left: .5rem;
+  margin-left: 0.5rem;
+  color: var(--var-soft-blue);
 }
 
 .card-attribute p {
-    margin-left: .5rem;
-    margin-right: .5rem;
-    margin-bottom: 0;
-    font-weight: 400;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+  margin-bottom: 0;
+  font-weight: 400;
 }
 
 @media (max-width: 641px) {
-    .card-container {
-        width: 100% !important;
-        height: 100% !important;
-        max-width: 100% !important;
-    }
+  .card-container {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+  }
 
-    .hero-image {
-        height: 100%;
-    }
+  .hero-image {
+    height: 100%;
+  }
 
-    .hero-image-container::after {
-        height: 100%;
-    }
+  .hero-image-container::after {
+    height: 100%;
+  }
 }

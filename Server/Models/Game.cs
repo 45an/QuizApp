@@ -8,9 +8,9 @@ namespace QuizApp.Server.Models
         [Key]
         public int Id { get; set; }
 
-        [ForeignKey("Quiz")]
-        public int QuizId { get; set; }
-        public Quiz? Quiz { get; set; }
+        [ForeignKey("Answser")]
+        public int AnswerId { get; set; }
+        public Answer? Answer { get; set; }
 
         [ForeignKey("User")]
         public string? UserId { get; set; }

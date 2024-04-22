@@ -14,7 +14,7 @@
 <AuthorizeView>
     <Authorized>
         <header class="navbar w-100 mb-4 p-0 border-bottom border-2 border-secondary text-light">
-            <h1><strong>Here are your Quizzes!</strong></h1>
+            <h1><strong>Here are Quizzes you have created</strong></h1>
         </header>
 
         <div class="container pb-4 mb-4">
@@ -24,7 +24,20 @@
                 <QuizCard quizId="@quiz.Id" quizTemplate="false" />
             }
             </div>
-        </div
+        </div>
+
+        <header class="navbar w-100 mb-4 p-0 border-bottom border-2 border-secondary text-light">
+            <h1><strong>Here are Quizzes you have answered</strong></h1>
+        </header>
+
+        <div class="container pb-4 mb-4">
+            <div class="d-flex flex-row flex-shrink flex-wrap w-100 p-0 m-0 mb-4 gap-4 justify-content-center">
+            @foreach (var userAnswer in userAnswers)
+            {
+                <QuizCard quizId="@userAnswer.AnswerQuiz.Id" quizTemplate="false" />
+            }
+            </div>
+        </div>
     </Authorized>
     <NotAuthorized>
         <div class="alert alert-warning" role="alert">
@@ -41,6 +54,7 @@
     public string? UserId { get; set; }
 
     private List<QuizModel> quizModels = new List<QuizModel>();
+    private List<AnswerModel> userAnswers = new List<AnswerModel>();
     private bool isAuthenticated;
 
     [CascadingParameter]
@@ -53,12 +67,28 @@
 
         if (isAuthenticated)
         {
-            var response = await httpClient.GetAsync($"api/profile/quizzes/{UserId}");
+            await GetUserQuiz();
+            await GetUserAnswers();
+        }
+    }
+
+    private async Task GetUserQuiz()
+    {
+        var response = await httpClient.GetAsync($"api/profile/quizzes/{UserId}");
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
                 quizModels = JsonConvert.DeserializeObject<List<QuizModel>>(content);
             }
-        }
+    }
+
+    private async Task GetUserAnswers()
+    {
+        var response = await httpClient.GetAsync($"api/profile/answers/{UserId}");
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                userAnswers = JsonConvert.DeserializeObject<List<AnswerModel>>(content);
+            }
     }
 }

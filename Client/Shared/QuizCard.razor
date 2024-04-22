@@ -6,7 +6,7 @@
     @if (quizTemplate) {
         <div class="hero-image-container w-100 align-items-center">
             <img
-            src="https://picsum.photos/100/400"
+            src="https://picsum.photos/200/200"
             class="w-100 hero-image rounded" />
         </div>
     }
@@ -37,7 +37,7 @@
             </div>
             <div class="d-flex flex-grow align-items-center align-text-center card-attribute">
                 <i class="fa-solid fa-clock"/>
-                <p class="text-light"> Never</p>
+                <p class="text-light"> 69 days ago</p>
             </div>
             <div class="d-flex flex-grow align-items-center align-text-center card-attribute">
                 <i class="fa-solid fa-arrow-rotate-left"></i>
@@ -45,11 +45,11 @@
             </div>
         </div>
         <div class="d-flex flex-row card-attribute border-top border-secondary pt-2 gap-2">
-            <p class="text-light">Quiz by <span><a href="#">AI</a></span></p>
+            <i class="fa-solid fa-user"></i><p class="text-light"> Quiz by <span><a class="text-decoration-none" href="#">AI</a></span></p>
         </div>
     </div>
     } else {
-    <div class="main-content p-2">
+    <div class="main-content shadow p-2">
         <h1 class="pb-2 m-0">@quizModel.Title</h1>
         <div class="d-flex flex-row flex-wrap justify-content-between align-items-center py-2 gap-1
                     border border-secondary rounded stats">
@@ -59,15 +59,21 @@
             </div>
             <div class="d-flex flex-grow align-items-center align-text-center card-attribute">
                 <i class="fa-solid fa-clock"/>
-                <p class="text-light"> @quizModel.DateCreated.ToShortDateString()</p>
+                <p class="text-light">@GetRelativeTime(quizModel.DateCreated)</p>
             </div>
             <div class="d-flex flex-grow align-items-center align-text-center card-attribute">
                 <i class="fa-solid fa-arrow-rotate-left"></i>
                 <p class="text-light"> Played: @quizModel.GamesPlayed</p>
             </div>
         </div>
-        <div class="d-flex flex-row flex-wrap card-attribute py-2 gap-2">
-            <p class="text-light">Quiz by <span><a class="text-decoration-none" href="@("userQuiz/" + quizModel.UserId)">@quizModel.UserName</a></span></p>
+        <div class="d-flex flex-row flex-wrap justify-content-between align-items-center py-2 gap-1">
+            <div class="d-flex flex-grow align-items-center align-text-center card-attribute">
+                <i class="fa-solid fa-user"></i>
+                <p class="text-light"> Quiz by <span>
+                    <a class="text-decoration-none" href="@("userQuiz/" + quizModel.UserId)">@quizModel.UserName</a>
+                    </span>
+                </p>
+            </div>
         </div>
     </div>
     }
@@ -90,7 +96,51 @@
         }
         else
         {
-        Console.WriteLine("Could not get a response" + response);
+            Console.WriteLine("Could not get a response" + response);
+        }
+    }
+
+    public string GetRelativeTime(DateTime dateCreated)
+    {
+        const int SECOND = 1;
+        const int MINUTE = 60 * SECOND;
+        const int HOUR = 60 * MINUTE;
+        const int DAY = 24 * HOUR;
+        const int MONTH = 30 * DAY;
+
+        var ts = new TimeSpan(DateTime.UtcNow.Ticks - dateCreated.Ticks);
+        double delta = Math.Abs(ts.TotalSeconds);
+
+        if (delta < 1 * MINUTE)
+            return ts.Seconds == 1 ? "one second ago" : ts.Seconds + " seconds ago";
+
+        if (delta < 2 * MINUTE)
+            return "a minute ago";
+
+        if (delta < 45 * MINUTE)
+            return ts.Minutes + " minutes ago";
+
+        if (delta < 90 * MINUTE)
+            return "an hour ago";
+
+        if (delta < 24 * HOUR)
+            return ts.Hours + " hours ago";
+
+        if (delta < 48 * HOUR)
+            return "yesterday";
+
+        if (delta < 30 * DAY)
+            return ts.Days + " days ago";
+
+        if (delta < 12 * MONTH)
+        {
+            int months = Convert.ToInt32(Math.Floor((double)ts.Days / 30));
+            return months <= 1 ? "one month ago" : months + " months ago";
+        }
+        else
+        {
+            int years = Convert.ToInt32(Math.Floor((double)ts.Days / 365));
+            return years <= 1 ? "one year ago" : years + " years ago";
         }
     }
 }

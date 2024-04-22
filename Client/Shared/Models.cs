@@ -2,11 +2,18 @@ using Microsoft.AspNetCore.Components.Forms;
 
 namespace QuizApp.Client.Shared.Models
 {
+    class AnswerModel
+    {
+        public int Id { get; set; }
+        public QuizModel OriginalQuiz { get; set; }
+        public QuizModel AnswerQuiz { get; set; }
+        public string? UserId { get; set; }
+    }
+
     class GameModel
     {
         public int Id { get; set; }
-        public int QuizId { get; set; }
-        public QuizModel? QuizModel { get; set; }
+        public int? AnswerId { get; set; }
         public string? UserId { get; set; }
         public int Score { get; set; }
     }
@@ -17,7 +24,7 @@ namespace QuizApp.Client.Shared.Models
         public int Index { get; set; }
         public string UserName { get; set; }
         public string Title { get; set; }
-        public virtual MediaModel? Media { get; set; }
+        public MediaModel? Media { get; set; }
         public IBrowserFile File { get; set; }
         public DateTime DateCreated { get; set; }
         public int MaxScore { get; set; }
@@ -28,7 +35,7 @@ namespace QuizApp.Client.Shared.Models
 
     class MediaModel
     {
-        public Guid? MediaGuid { get; set; }
+        public string? MediaGuid { get; set; }
         public string? Hash { get; set; }
         public string? Path { get; set; }
         public string? ContentType { get; set; }
@@ -42,23 +49,11 @@ namespace QuizApp.Client.Shared.Models
         public int Index { get; set; }
         public string Questions { get; set; }
         public string Answer { get; set; }
-        public virtual MediaModel? Media { get; set; }
+        public MediaModel? Media { get; set; }
         public IBrowserFile File { get; set; }
         public int Time { get; set; }
-
         public bool MultipleChoice { get; set; }
         public List<MockModel> MocksAnswers { get; set; } = new List<MockModel>();
-
-        public QuestionModel()
-        {
-            // Initialize MocksAnswers with two MockModel instances, each with an empty MockAnswer string
-            MocksAnswers = new List<MockModel>
-            {
-                new MockModel { MockAnswer = "" },
-                new MockModel { MockAnswer = "" }
-            };
-            //Media = new MediaModel();
-        }
     }
 
     class MockModel
