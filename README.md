@@ -285,8 +285,9 @@ The QuizApp API provides the following endpoints and returns the associated data
 | POST /api/quiz/addquiz         | Adds a new quiz to the database.                       | Information about the newly added quiz or an error message if the addition process fails. | 200 OK: Successful quiz addition.<br>400 Bad Request: Invalid request, such as if it lacks necessary information.<br>500 Internal Server Error: Error occurred while adding quiz. |
 
 ## Database Schema Diagram
+<img width="976" alt="Skärmavbild 2024-04-22 kl  12 27 21" src="https://github.com/45an/QuizApp/assets/114033186/7b4dbb17-0bf8-442b-9311-d5a7bf312f18">
 
-<img width="1140" alt="Skarmavbild_2024-04-12_kl _18 24 39" src="https://github.com/45an/QuizApp/assets/114033186/efad2fc0-1ce3-4b50-889b-00d25e60a7d1">
+
 
 <h2 id="database-configuration">🖳 Database Configuration</h2>
 
