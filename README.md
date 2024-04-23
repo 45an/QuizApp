@@ -299,10 +299,11 @@ Make sure to update the connection string to match your SQL Server database conf
 
 ### 🔍 Homepage:
 ![Screenshot 2024-04-22 at 12-31-35 Home](https://github.com/45an/QuizApp/assets/113895247/0143b5e0-ea6e-4661-afb0-86e39b3b3725)
-![Screenshot 2024-04-22 at 12-36-57 Home](https://github.com/45an/QuizApp/assets/113895247/59030f57-299e-4b3d-bcf7-4cf085600053)
+
 
 
 ### 🕹️ In-Game:
+![Screenshot 2024-04-22 at 12-36-57 Home](https://github.com/45an/QuizApp/assets/113895247/59030f57-299e-4b3d-bcf7-4cf085600053)
 ![Screenshot 2024-04-22 at 12-37-08 User Quiz](https://github.com/45an/QuizApp/assets/113895247/4a2c76bd-fdc1-46ae-9047-a0c333069ae5)
 ![Screenshot 2024-04-22 at 12-37-42 QuizApp](https://github.com/45an/QuizApp/assets/113895247/ad53e81b-fccd-4a2d-8d8c-0a44d8500b0e)
 
